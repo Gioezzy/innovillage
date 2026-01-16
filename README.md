@@ -1,13 +1,13 @@
-# Embroidery Services Platform
+# Innovillage Platform
 
 <div align="center">
-  <img src="https://res.cloudinary.com/dyfi4bwkp/image/upload/v1763913339/Screenshot_from_2025-11-23_22-54-11_ctyaey.png" alt="Embroide Master Logo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+  <img src="https://res.cloudinary.com/dyfi4bwkp/image/upload/v1763913339/Screenshot_from_2025-11-23_22-54-11_ctyaey.png" alt="Innovillage Logo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
 </div>
 
 <br />
 
 <p align="center">
-  <strong>A Next-Gen E-commerce Platform for Custom Embroidery Services</strong>
+  <strong>A Modern Multi-Vendor Marketplace for Village Innovation & UMKM</strong>
 </p>
 
 <p align="center">
@@ -31,24 +31,32 @@
 
 ## 🚀 Overview
 
-**Embroide Master** (Nilam Bordir) is a sophisticated e-commerce solution designed specifically for the embroidery business. Unlike standard online stores, it features a specialized custom design workflow that allows customers to configure intricate embroidery details—from sash text to logo placement—directly on the platform.
+**Innovillage** is a sophisticated multi-vendor marketplace platform designed to empower local village innovations and UMKMs. It enables multiple stores to operate under one platform, offering a seamless experience for both sellers (Admin/Artisan) and buyers.
 
 Built with **Next.js 16 (App Router)** and **Server Actions**, it offers a blazing fast, secure, and SEO-friendly experience.
 
 ## ✨ Key Features
 
+### 🏢 Marketplace Architecture
+-   **Multi-Vendor Support**: Platform supports multiple independent stores managed by different owners.
+-   **Super Admin Role**: Centralized management for creating stores, overseeing platform statistics, and managing users.
+-   **Role-Based Access**:
+    -   **Super Admin**: Full platform control.
+    -   **Store Admin (Owner)**: Management of their specific store, products, and staff.
+    -   **Artisan (Staff)**: Order processing and product management within their assigned store.
+
 ### 🛍️ Client Experience
--   **Custom Design Studio**: Interactive interface for configuring Salempang, Name Tags, and Logo Embroidery with real-time preview.
--   **Smart Checkout**: Integrated logical shipping calculation based on province (centered in Padang Panjang).
+-   **Multi-Store Shopping**: Browse products from various local village stores.
+-   **Smart Checkout**: Integrated logical shipping calculation.
 -   **Secure Payments**: Seamless payment processing via Midtrans Gateway.
 -   **Order Tracking**: Real-time status updates from production to delivery.
 -   **Responsive Design**: Fully optimized for mobile, tablet, and desktop using Tailwind CSS.
 
-### 🛡️ Admin Dashboard
--   **Design Review**: Visual interface to inspect customer design specifications (colors, fonts, layout) against uploaded assets.
--   **Order Management**: Full lifecycle management of orders (Pending -> Processing -> Shipped).
--   **Analytics**: Real-time insights into sales, top products, and revenue growth.
--   **Content Management**: easy-to-use CRUD for products and categories.
+### 🛡️ Dashboard & Management
+-   **Store Management**: Admins can manage products, categories, and view store-specific analytics.
+-   **Order Lifecycle**: Full management of orders (Pending -> Processing -> Shipped -> Completed).
+-   **Financials**: Revenue tracking and sales reports per store.
+-   **Staff Management**: Store owners can add Artisans to help manage operations.
 
 ## 🛠️ Tech Stack
 
@@ -71,8 +79,9 @@ Built with **Next.js 16 (App Router)** and **Server Actions**, it offers a blazi
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/Gioezzy/nilamBordir.git
-    cd nilam-bordir
+    ```bash
+    git clone https://github.com/Gioezzy/innovillage.git
+    cd innovillage
     ```
 
 2.  **Install dependencies**
