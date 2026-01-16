@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode: Warm & Cultural */
+    --background: 40 33% 98%;   
+    --foreground: 20 14% 4%;    
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 4%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 4%;
+
+    --primary: 43 74% 49%;      
+    --primary-foreground: 20 14% 4%;
+
+    --secondary: 20 20% 90%;    
+    --secondary-foreground: 20 14% 4%;
+
+    --muted: 20 20% 96%;
+    --muted-foreground: 20 5% 45%;
+
+    --accent: 43 74% 90%;      
+    --accent-foreground: 43 74% 30%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 10% 90%;
+    --input: 20 10% 90%;
+    --ring: 43 74% 49%;
+
+    --radius: 0.5rem; 
+  }
+
+  .dark {
+    /* Dark Mode: Premium & Elegant */
+    --background: 20 14% 4%;
+    --foreground: 40 33% 98%;
+
+    --card: 20 14% 8%;
+    --card-foreground: 40 33% 98%;
+
+    --popover: 20 14% 8%;
+    --popover-foreground: 40 33% 98%;
+
+    --primary: 43 74% 49%;      
+    --primary-foreground: 20 14% 4%;
+
+    --secondary: 20 14% 12%;
+    --secondary-foreground: 40 33% 98%;
+
+    --muted: 20 14% 12%;
+    --muted-foreground: 20 5% 60%;
+
+    --accent: 43 74% 20%;
+    --accent-foreground: 43 74% 49%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 14% 12%;
+    --input: 20 14% 12%;
+    --ring: 43 74% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .accordion-down {
+    animation: accordion-down 0.2s ease-out;
+  }
+
+  .accordion-up {
+    animation: accordion-up 0.2s ease-out;
+  }
+}
