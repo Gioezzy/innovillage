@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
               href="/"
               className="lg:hidden font-heading text-3xl font-bold text-primary mb-8 inline-block"
             >
-              Nilam Bordir
+              Songket.id
             </Link>
             <h2 className="font-heading text-3xl font-bold text-foreground">
               Reset Password

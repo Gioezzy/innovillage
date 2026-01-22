@@ -62,15 +62,17 @@ export default async function ProductListPage() {
               Kelola katalog produk bordir Anda
             </p>
           </div>
-          <Link href="/admin/product/create">
-            <Button
-              size="lg"
-              className="rounded-xl shadow-lg shadow-primary/25"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Tambah Produk
-            </Button>
-          </Link>
+          {profile?.role !== 'super_admin' && (
+            <Link href="/admin/product/create">
+              <Button
+                size="lg"
+                className="rounded-xl shadow-lg shadow-primary/25"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Tambah Produk
+              </Button>
+            </Link>
+          )}
         </div>
       </FadeIn>
 

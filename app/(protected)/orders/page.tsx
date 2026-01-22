@@ -8,7 +8,7 @@ import OrdersFilter from '@/components/orders/orders-filter';
 import { Button } from '@/components/ui/button';
 
 export const metadata = {
-  title: 'Pesanan Saya - Nilam Bordir',
+  title: 'Pesanan Saya - Songket.id',
   description: 'Daftar pesanan Anda',
 };
 

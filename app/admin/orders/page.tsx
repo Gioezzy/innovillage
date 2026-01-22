@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
@@ -20,7 +21,10 @@ export default async function AdminOrdersPage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
-  const supabase = await createClient();
+  const supabaseAuth = await createClient();
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+
+  const supabase = createAdminClient();
 
   let query = supabase
     .from('orders')
@@ -35,6 +39,29 @@ export default async function AdminOrdersPage({
     )
     .order('created_at', { ascending: false });
 
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, store_id')
+      .eq('id', user.id)
+      .single();
+
+    if (profile && profile.role !== 'super_admin') {
+      if (profile.store_id) {
+        query = query.eq('store_id', profile.store_id);
+      } else {
+         const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+         if (store) {
+           query = query.eq('store_id', store.id);
+         } else if (profile.role !== 'super_admin') {
+             query = query.eq('id', '00000000-0000-0000-0000-000000000000'); 
+         }
+      }
+    }
+  } else {
+     return null; 
+  }
+
   if (params.status) {
     query = query.eq('status', params.status);
   }
@@ -45,30 +72,34 @@ export default async function AdminOrdersPage({
     console.error('Error fetching orders:', error);
   }
 
-  const { count: pendingCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'pending_payment');
+  const getCount = async (status: string) => {
+    let countQuery = supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', status);
 
-  const { count: paidCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'paid');
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('role, store_id').eq('id', user.id).single();
+         if (profile && profile.role !== 'super_admin') {
+             if (profile.store_id) {
+                countQuery = countQuery.eq('store_id', profile.store_id);
+             } else {
+                 const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+                 if (store) {
+                    countQuery = countQuery.eq('store_id', store.id);
+                 }
+             }
+         }
+      }
+      const { count } = await countQuery;
+      return count;
+  }
 
-  const { count: productionCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'in_production');
-
-  const { count: readyCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'ready_for_pickup');
-
-  const { count: completedCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'completed');
+  const pendingCount = await getCount('pending_payment');
+  const paidCount = await getCount('paid');
+  const productionCount = await getCount('in_production');
+  const readyCount = await getCount('ready_for_pickup');
+  const completedCount = await getCount('completed');
 
   return (
     <div className="space-y-8">
@@ -199,7 +230,7 @@ export default async function AdminOrdersPage({
               </thead>
               <tbody className="divide-y divide-border/50">
                 {orders && orders.length > 0 ? (
-                  orders?.map(order => (
+                  orders?.map((order: any) => (
                     <tr
                       key={order.id}
                       className="hover:bg-muted/30 transition-colors"

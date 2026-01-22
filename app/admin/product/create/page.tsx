@@ -8,12 +8,36 @@ export const metadata = {
   title: 'Tambah Produk - Admin',
 };
 
+import { redirect } from 'next/navigation';
+
 export default async function CreateProductPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role === 'super_admin') {
+    redirect('/admin/product');
+  }
 
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
+    .eq('is_active', true)
+    .order('name');
+
+  const { data: motifs } = await supabase
+    .from('motifs')
+    .select('id, name')
     .eq('is_active', true)
     .order('name');
 
@@ -36,7 +60,7 @@ export default async function CreateProductPage() {
       </div>
 
       <div className="bg-card rounded-2xl border border-border/50 p-8 shadow-sm">
-        <ProductForm categories={categories || []} />
+        <ProductForm categories={categories || []} motifs={motifs || []} />
       </div>
     </div>
   );

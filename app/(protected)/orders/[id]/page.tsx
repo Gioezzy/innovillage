@@ -15,7 +15,7 @@ import { notFound } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 
 export const metadata = {
-  title: 'Detail Pesanan - Nilam Bordir',
+  title: 'Detail Pesanan - Songket.id',
 };
 
 interface OrderDetailPageProps {

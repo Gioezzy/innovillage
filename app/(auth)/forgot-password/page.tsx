@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
               href="/"
               className="lg:hidden font-heading text-3xl font-bold text-primary mb-8 inline-block"
             >
-              Nilam Bordir
+              Songket.id
             </Link>
           </div>
 

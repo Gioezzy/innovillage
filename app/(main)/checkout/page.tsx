@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CircleCheck } from 'lucide-react';
 import FadeIn from '@/components/animations/fade-in';
 import {
   Select,
@@ -33,7 +33,7 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [pickupMethod, setPickupMethod] = useState<'in_store' | 'delivery'>(
-    'in_store'
+    'delivery'
   );
   const [selectedProvince, setSelectedProvince] = useState<string>('');
   const [shippingCost, setShippingCost] = useState(0);
@@ -107,6 +107,11 @@ export default function CheckoutPage() {
         toast.error(result.error);
       } else if (result.success) {
         clearCart();
+        if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+        } else {
+             toast.success('Pesanan berhasil dibuat!');
+        }
       }
     });
   };
@@ -149,74 +154,29 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="bg-card rounded-2xl shadow-sm border border-border/50 p-6 space-y-6">
+                <div className="bg-card rounded-2xl shadow-sm border border-border/50 p-6 space-y-6">
                 <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
                   <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center text-sm font-bold">
                     2
                   </span>
-                  Metode Pengambilan
+                  Metode Pengiriman
                 </h2>
 
-                <RadioGroup
-                  value={pickupMethod}
-                  onValueChange={(value: any) => setPickupMethod(value)}
-                  className="grid gap-4"
-                >
-                  <label
-                    htmlFor="in_store"
-                    className={`cursor-pointer border-2 rounded-2xl p-5 transition-all duration-200 ${
-                      pickupMethod === 'in_store'
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                        : 'border-border hover:border-border/80'
-                    }`}
-                    onClick={() => setPickupMethod('in_store')}
-                  >
-                    <div className="flex items-start gap-3">
-                      <RadioGroupItem
-                        id="in_store"
-                        value="in_store"
-                        className="mt-1"
-                      />
-                      <div>
-                        <p className="font-semibold text-foreground">
-                          Ambil di Toko
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Gratis tanpa biaya tambahan. Lokasi: Padang Panjang, Sumatera Barat.
-                        </p>
-                      </div>
+                <div className="p-5 border-2 border-primary bg-primary/5 ring-1 ring-primary rounded-2xl flex items-start gap-3">
+                    <div className="mt-1 text-primary">
+                        <CircleCheck className="w-5 h-5 fill-current text-primary-foreground" />
                     </div>
-                  </label>
-
-                  <label
-                    htmlFor="delivery"
-                    className={`cursor-pointer border-2 rounded-2xl p-5 transition-all duration-200 ${
-                      pickupMethod === 'delivery'
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                        : 'border-border hover:border-border/80'
-                    }`}
-                    onClick={() => setPickupMethod('delivery')}
-                  >
-                    <div className="flex items-start gap-3">
-                      <RadioGroupItem
-                        id="delivery"
-                        value="delivery"
-                        className="mt-1"
-                      />
-                      <div>
+                    <div>
                         <p className="font-semibold text-foreground">
                           Pengiriman Ekspedisi
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Dikirim dari Padang Panjang menggunakan ekspedisi rekanan (JNE/J&T/Sicepat).
+                          Dikirim dari Silungkang menggunakan ekspedisi rekanan (JNE/J&T/Sicepat).
                         </p>
-                      </div>
                     </div>
-                  </label>
-                </RadioGroup>
+                </div>
 
-                {pickupMethod === 'delivery' && (
-                  <FadeIn className="space-y-4">
+                  <FadeIn className="space-y-4 pt-4">
                     <div className="space-y-2">
                         <Label htmlFor="province">Provinsi Tujuan *</Label>
                         <Select
@@ -248,7 +208,6 @@ export default function CheckoutPage() {
                         />
                     </div>
                   </FadeIn>
-                )}
               </div>
 
               <div className="bg-card rounded-2xl shadow-sm border border-border/50 p-6 space-y-2">

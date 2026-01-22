@@ -248,7 +248,7 @@ export default async function AdminOrderDetailPage({
                     Alamat Pengiriman
                   </p>
                   <p className="font-medium text-foreground text-sm leading-relaxed">
-                    {order.profiles?.address || 'Alamat tidak tersedia'}
+                    {order.shipping_address || order.profiles?.address || 'Alamat tidak tersedia'}
                   </p>
                 </div>
               </div>

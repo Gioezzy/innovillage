@@ -31,7 +31,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${category.name} - Nilam Bordir`,
+    title: `${category.name} - Songket.id`,
     description: category.description,
   };
 }

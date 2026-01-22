@@ -3,7 +3,7 @@ import ProfileEditForm from '@/components/profile/profile-edit-form';
 import ChangePasswordForm from '@/components/profile/change-password-form';
 
 export const metadata = {
-  title: 'Profil Saya - Nilam Bordir',
+  title: 'Profil Saya - Songket.id',
 };
 
 export default async function ProfilePage() {

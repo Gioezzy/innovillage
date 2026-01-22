@@ -21,8 +21,8 @@ interface ShopPageProps {
 }
 
 export const metadata = {
-  title: 'Semua Produk - Nilam Bordir',
-  description: 'Jelajahi koleksi lengkap produk bordir kami',
+  title: 'Semua Produk - Songket.id',
+  description: 'Jelajahi koleksi lengkap produk songket kami',
 };
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {

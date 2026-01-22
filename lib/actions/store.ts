@@ -77,8 +77,6 @@ export async function createStoreByAdminAction(formData: FormData) {
     }
   );
 
-  // Lookup user by email in auth.users using admin listUsers
-  // Note: listing users has pagination, fetching 1000 for now to find the user.
   const { data: { users }, error: userError } = await supabaseAdmin.auth.admin.listUsers({
       perPage: 1000
   });
@@ -88,7 +86,8 @@ export async function createStoreByAdminAction(formData: FormData) {
       return { error: 'Gagal mengambil data user.' };
   }
 
-  const userData = users.find(u => u.email === ownerEmail);
+  const normalizedEmail = ownerEmail.toLowerCase().trim();
+  const userData = users.find(u => u.email?.toLowerCase() === normalizedEmail);
 
   if (!userData) {
       return { error: 'User dengan email tersebut tidak ditemukan. Pastikan user sudah terdaftar.' };
@@ -96,16 +95,26 @@ export async function createStoreByAdminAction(formData: FormData) {
   
   const ownerId = userData.id;
 
-  // Verify profile exists (optional but good for consistency)
-  const { data: ownerProfile, error: profileError } = await supabase
-       .from('profiles')
-       .select('id')
-       .eq('id', ownerId)
-       .single();
+  const { data: ownerProfile, error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('id', ownerId)
+    .single();
 
-   if (!ownerProfile) {
-       return { error: 'Profile user tidak ditemukan.' };
-   }
+  if (!ownerProfile) {
+      const { error: createProfileError } = await supabaseAdmin
+      .from('profiles')
+      .insert({
+          id: ownerId,
+          full_name: userData.user_metadata?.full_name || userData.user_metadata?.name || 'Store Owner',
+          role: 'admin'
+      });
+        
+    if (createProfileError) {
+        console.error("Create profile error", createProfileError);
+        return { error: 'Gagal membuat proifil user.' };
+    }
+  }
 
   let imageUrl = null;
   if (imageFile && imageFile.size > 0) {
@@ -136,17 +145,17 @@ export async function createStoreByAdminAction(formData: FormData) {
       is_verified: true,
   };
 
-  const { error: storeError } = await supabase.from('stores').insert(newStore);
+  const { error: storeError } = await supabaseAdmin.from('stores').insert(newStore);
 
   if (storeError) {
       console.error("Create store error", storeError);
-       if (storeError.code === '23505') {
+      if (storeError.code === '23505') {
         return { error: 'Slug atau Nama Toko sudah digunakan.' };
       }
       return { error: 'Gagal membuat toko.' };
   }
 
-  await supabase.from('profiles').update({ role: 'admin' }).eq('id', ownerId);
+  await supabaseAdmin.from('profiles').update({ role: 'admin' }).eq('id', ownerId);
 
   revalidatePath('/super-admin/stores');
   return { success: true };
@@ -167,12 +176,12 @@ export async function getUserStore() {
     .single();
 
   if (profile?.store_id) {
-     const { data } = await supabase
+    const { data } = await supabase
         .from('stores')
         .select('*')
         .eq('id', profile.store_id)
         .single();
-     return data;
+    return data;
   }
 
   const { data } = await supabase
@@ -229,38 +238,60 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, store_id')
     .eq('id', user.id)
     .single();
   
   const isSuperAdmin = profile?.role === 'super_admin';
   const isOwner = store.owner_id === user.id;
+  const isStaff = profile?.role === 'artisan' && profile?.store_id === storeId;
 
-  if (!isOwner && !isSuperAdmin) {
+  if (!isOwner && !isSuperAdmin && !isStaff) {
     return { error: 'Unauthorized' };
   }
 
   const name = formData.get('name') as string;
+  const slug = formData.get('slug') as string;
   const description = formData.get('description') as string;
-  const imageUrl = formData.get('image_url') as string;
-  const bannerUrl = formData.get('banner_url') as string;
+  const imageUrlInput = formData.get('image_url') as string; 
+  const bannerUrlInput = formData.get('banner_url') as string;
+
+  const { createClient: createServiceClient } = await import('@supabase/supabase-js');
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  
+  let imageUrl = undefined;
+  if (imageUrlInput && imageUrlInput.startsWith('http')) {
+      imageUrl = imageUrlInput;
+  }
+
+  let bannerUrl = undefined;
+  if (bannerUrlInput && bannerUrlInput.startsWith('http')) {
+      bannerUrl = bannerUrlInput;
+  }
   
   const updates: StoreUpdate = {
     name,
+    slug, 
     description,
-    image_url: imageUrl || undefined,
-    banner_url: bannerUrl || undefined,
+    image_url: imageUrl,
+    banner_url: bannerUrl,
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('stores')
     .update(updates)
     .eq('id', storeId);
 
   if (error) {
-     console.error('Error updating store:', error);
-     return { error: 'Gagal mengupdate toko' };
+    console.error('Error updating store:', error);
+    if (error.code === '23505') {
+      return { error: 'Slug sudah digunakan oleh toko lain' };
+    }
+    return { error: 'Gagal mengupdate toko' };
   }
 
   revalidatePath('/stores/[slug]', 'page');

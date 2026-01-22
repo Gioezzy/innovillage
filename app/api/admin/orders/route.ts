@@ -15,16 +15,37 @@ export async function PUT(request:Request) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, store_id')
       .eq('id', user.id)
       .single();
 
-    if (!profile || profile.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'artisan' && profile.role !== 'super_admin')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
     const { id, status, pickup_date } = body;
+
+    if (profile.role !== 'super_admin') {
+      let storeId = profile.store_id;
+       if (!storeId) {
+          const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+          if (store) storeId = store.id;
+       }
+
+       if (storeId) {
+          const { data: orderCheck } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('id', id)
+            .eq('store_id', storeId)
+            .single();
+          
+          if (!orderCheck) {
+             return NextResponse.json({ error: 'Order not found or unauthorized' }, { status: 404 });
+          }
+       }
+    }
 
     const updateData: any = {
       status,
@@ -39,7 +60,10 @@ export async function PUT(request:Request) {
       updateData.pickup_date = new Date().toISOString();
     }
 
-    const { data: order, error: updateError } = await supabase
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const supabaseAdmin = createAdminClient();
+
+    const { data: order, error: updateError } = await supabaseAdmin
       .from('orders')
       .update(updateData)
       .eq('id', id)
@@ -55,7 +79,7 @@ export async function PUT(request:Request) {
       title: 'Update Status Pesanan',
       message: `Status pesanan #${order.order_number} telah diperbarui menjadi: ${ORDER_STATUS_LABELS[status] || status}`,
       type: 'order',
-      relatedId: order.order_number
+      relatedId: order.id 
     });
 
     return NextResponse.json({ success: true, data: order });

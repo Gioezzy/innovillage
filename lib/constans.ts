@@ -56,5 +56,5 @@ export const DEFAULT_LEAD_TIME_DAYS = 7;
 export const SITE_NAME = 'Songket.id';
 export const CONTACT_WHATSAPP = '6281234567890';
 export const CONTACT_EMAIL = 'hello@songket.id';
-export const COMPANY_ADDRESS = 'Silungkang, Sawahlunto, Sumatera Barat';
+export const COMPANY_ADDRESS = 'Silungkang, Sumatera Barat';
 
