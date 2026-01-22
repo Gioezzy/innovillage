@@ -49,6 +49,8 @@ export interface AdminOrderItem extends TypedOrderItem {
 }
 
 export interface OrderWithDetails extends Order {
+  shipping_address?: string | null;
+  shipping_cost?: number | null;
   profiles: {
     full_name: string | null;
     phone: string | null;

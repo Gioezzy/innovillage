@@ -98,7 +98,9 @@ export async function createOrderAction(input: CreateOrderInput) {
       status: 'pending_payment',
       delivery_method: input.pickupMethod,
       note: input.note,
-      store_id: storeId, 
+      store_id: storeId,
+      shipping_address: input.address, 
+      shipping_cost: shippingCost,
     })
     .select()
     .single()
@@ -126,6 +128,22 @@ export async function createOrderAction(input: CreateOrderInput) {
     return { error: 'Failed to create order items' }
   }
 
+  const midtransItemDetails = validatedItems.map(item => ({
+    id: item.productId,
+    name: item.productName,
+    price: item.unitPrice,
+    quantity: item.quantity,
+  }));
+
+  if (shippingCost > 0) {
+    midtransItemDetails.push({
+      id: 'shipping-cost',
+      name: 'Biaya Pengiriman',
+      price: shippingCost,
+      quantity: 1,
+    });
+  }
+
   const paymentResult = await createMidtransTransaction({
     orderId: orderNumber,
     amount: totalAmount,
@@ -134,12 +152,7 @@ export async function createOrderAction(input: CreateOrderInput) {
       email: user.email!,
       phone: input.phone || profile.phone || '08123456789',
     },
-    itemDetails: validatedItems.map(item => ({
-      id: item.productId,
-      name: item.productName,
-      price: item.unitPrice,
-      quantity: item.quantity,
-    }))
+    itemDetails: midtransItemDetails
   })
 
   if (!paymentResult.success || !paymentResult.token) {
@@ -147,7 +160,7 @@ export async function createOrderAction(input: CreateOrderInput) {
     return { error: 'Failed to create payment. Please try again.' }
   }
 
-  await supabase.from('payments').insert({
+  const { error: paymentInsertError } = await supabase.from('payments').insert({
     order_id: order.id,
     midtrans_order_id: orderNumber,
     amount: totalAmount,
@@ -155,14 +168,18 @@ export async function createOrderAction(input: CreateOrderInput) {
     midtrans_token: paymentResult.token,
   })
 
-  if (paymentResult.redirectUrl) {
-    redirect(paymentResult.redirectUrl)
+  if (paymentInsertError) {
+    console.error('Payment Record Insert Error:', paymentInsertError);
+    await supabase.from('orders').delete().eq('id', order.id);
+    return { error: 'Gagal menyimpan data pembayaran. Mohon pastikan setup database sudah benar (RLS).' };
   }
+
 
   return {
     success: true,
     orderId: order.id,
     paymentToken: paymentResult.token,
+    redirectUrl: paymentResult.redirectUrl
   }
 }
 
@@ -258,7 +275,10 @@ export const getAdminOrderById = cache(async (orderId: string): Promise<OrderWit
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data: profile } = await supabase
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const supabaseAdmin = createAdminClient();
+
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('role, store_id')
     .eq('id', user.id)
@@ -274,13 +294,13 @@ export const getAdminOrderById = cache(async (orderId: string): Promise<OrderWit
       if (profile.store_id) {
         storeId = profile.store_id;
       } else {
-         const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+         const { data: store } = await supabaseAdmin.from('stores').select('id').eq('owner_id', user.id).single();
          if (!store) return null;
          storeId = store.id;
       }
   }
 
-  let query = supabase
+  let query = supabaseAdmin
     .from('orders')
     .select(`
       *,

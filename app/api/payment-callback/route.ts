@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const supabase = createAdminClient();
 
     let orderStatus: string;
     let paymentStatus: string;
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
         if (paymentStatus === 'success') {
              const { data: order } = await supabase
                 .from('orders')
-                .select('user_id, order_number')
+                .select('id, user_id, order_number')
                 .eq('id', payment.order_id)
                 .single();
             
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
                     title: 'Pembayaran Berhasil',
                     message: `Pembayaran untuk pesanan #${order.order_number} telah diterima. Pesanan akan segera diproses.`,
                     type: 'payment',
-                    relatedId: order.order_number
+                    relatedId: order.id
                 });
              }
         }
