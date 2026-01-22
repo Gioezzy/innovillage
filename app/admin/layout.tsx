@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSidebar from '@/components/layout/admin-sidebar';
 
 export default async function AdminLayout({
@@ -16,7 +17,9 @@ export default async function AdminLayout({
     redirect('/login');
   }
 
-  const { data: profile } = await supabase
+  const supabaseAdmin = createAdminClient();
+
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('role, store_id')
     .eq('id', user.id)
@@ -31,7 +34,7 @@ export default async function AdminLayout({
 
   if (profile.role === 'artisan' || profile.role === 'admin') {
       if (!profile.store_id) {
-          const { data: stores } = await supabase.from('stores').select('id').eq('owner_id', user.id).limit(1);
+          const { data: stores } = await supabaseAdmin.from('stores').select('id').eq('owner_id', user.id).limit(1);
           const store = stores?.[0];
           if (!store) {
               redirect('/open-shop');
