@@ -56,8 +56,8 @@ export default async function HomePage() {
               dan memastikan keaslian Songket Silungkang yang Anda miliki.
             </p>
             <Button size="lg" variant="secondary" className="rounded-full text-lg px-8 h-14 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300" asChild>
-              <Link href="/scan">
-                Coba Smart Lens Sekaran
+              <Link href="/smart-lens">
+                Coba Smart Lens Sekarang
               </Link>
             </Button>
           </div>
