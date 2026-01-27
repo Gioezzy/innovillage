@@ -1,23 +1,18 @@
 import midtransclient from 'midtrans-client';
 
-if (!process.env.MIDTRANS_SERVER_KEY) {
-  throw new Error('Midtrans server key is not set');
-}
-
-if (!process.env.MIDTRANS_CLIENT_KEY) {
-  throw new Error('Midtrans client key is not set');
-}
+// NOTE: We initialize these lazily or with fallbacks to prevent build-time crashes.
+// The actual validation happens when we try to Create a Transaction.
 
 export const snap = new midtransclient.Snap({
   isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.MIDTRANS_CLIENT_KEY,
+  serverKey: process.env.MIDTRANS_SERVER_KEY || "", // Fallback to empty string to avoid crash on init
+  clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
 });
 
 export const coreApi = new midtransclient.CoreApi({
   isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.MIDTRANS_CLIENT_KEY,
+  serverKey: process.env.MIDTRANS_SERVER_KEY || "",
+  clientKey: process.env.MIDTRANS_CLIENT_KEY || "",
 });
 
 export async function createMidtransTransaction(params: {
@@ -36,6 +31,11 @@ export async function createMidtransTransaction(params: {
   }>;
 }) {
   try {
+    // 1. Runtime Validation (Safe)
+    if (!process.env.MIDTRANS_SERVER_KEY) {
+       throw new Error("Midtrans Server Key is missing in Environment Variables");
+    }
+
     const transaction = await snap.createTransaction({
       transaction_details: {
         order_id: params.orderId,
@@ -63,7 +63,7 @@ export async function createMidtransTransaction(params: {
         secure: true,
       },
       callbacks: {
-        finish: `${process.env.NEXT_PUBLIC_BASE_URL}/orders`,
+        finish: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://songket.id'}/orders`,
       },
     });
 
@@ -83,6 +83,9 @@ export async function createMidtransTransaction(params: {
 
 export async function checkTransactionStatus(orderId: string) {
   try {
+     if (!process.env.MIDTRANS_SERVER_KEY) {
+       throw new Error("Midtrans Server Key is missing");
+    }
     const status = await coreApi.transaction.status(orderId);
     return {
       success: true,
