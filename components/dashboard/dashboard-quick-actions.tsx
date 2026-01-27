@@ -34,9 +34,9 @@ export default function DashboardQuickActions() {
         className="w-full justify-start h-12 text-left font-medium"
         asChild
       >
-        <Link href="/scan">
+        <Link href="/smart-lens">
           <Upload className="w-4 h-4 mr-3 text-primary" />
-          Scan Motif (AI)
+          Smart Lens
         </Link>
       </Button>
     </div>

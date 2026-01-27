@@ -33,7 +33,7 @@ type Category = {
 const PROTECTED_MENU_ITEMS = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Pesanan Saya', href: '/orders', icon: ShoppingBag },
-  { title: 'Scan Motif (Beta)', href: '/smart-lens', icon: Camera },
+  { title: 'Smart Lens', href: '/smart-lens', icon: Camera },
   { title: 'Profil', href: '/profile', icon: User },
 ];
 
