@@ -21,17 +21,19 @@ import { logoutAction } from '@/lib/actions/auth';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 
-const PUBLIC_CATEGORIES = [
-  { name: 'Songket Balapak', slug: 'songket-balapak' },
-  { name: 'Songket Batabua', slug: 'songket-batabua' },
-  { name: 'Selendang', slug: 'selendang' },
-];
+type Category = {
+    name: string;
+    slug: string;
+};
+
+
 
 const PROTECTED_MENU_ITEMS = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Pesanan Saya', href: '/orders', icon: ShoppingBag },
-  { title: 'Scan Motif (Beta)', href: '/scan', icon: Camera },
+  { title: 'Scan Motif (Beta)', href: '/smart-lens', icon: Camera },
   { title: 'Profil', href: '/profile', icon: User },
 ];
 
@@ -46,7 +48,23 @@ export default function Navbar() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+        const { data } = await supabase
+            .from('categories')
+            .select('name, slug')
+            .limit(5); // Limit to 5 for dropdown to keep it clean
+        
+        if (data) {
+            setCategories(data);
+        }
+    };
+    fetchCategories();
+  }, []);
 
   const handleLogout = async () => {
     const res = await logoutAction();
@@ -97,7 +115,7 @@ export default function Navbar() {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/orders') ||
     pathname.startsWith('/profile') ||
-    pathname.startsWith('/scan');
+    pathname.startsWith('/smart-lens');
 
   return (
     <nav
@@ -135,7 +153,7 @@ export default function Navbar() {
 
               {isShopOpen && (
                 <div className="absolute top-full left-0 mt-3 w-56 bg-card border rounded-lg shadow-lg py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                  {PUBLIC_CATEGORIES.map(category => (
+                  {categories.map(category => (
                     <Link
                       key={category.slug}
                       href={`/category/${category.slug}`}
@@ -156,7 +174,7 @@ export default function Navbar() {
             </div>
 
             <Link
-              href="/scan"
+              href="/smart-lens"
               className="text-muted-foreground hover:text-primary font-medium transition-colors flex items-center gap-2"
             >
               <Camera className="w-4 h-4" />
@@ -293,7 +311,7 @@ export default function Navbar() {
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-4">
                     Koleksi Songket
                   </div>
-                  {PUBLIC_CATEGORIES.map(category => (
+                  {categories.map(category => (
                     <Link
                       key={category.slug}
                       href={`/category/${category.slug}`}
@@ -311,7 +329,7 @@ export default function Navbar() {
                 </div>
 
                 <Link
-                  href="/scan"
+                  href="/smart-lens"
                   className="flex items-center gap-3 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg font-medium transition-colors"
                 >
                   <Camera className="w-5 h-5 text-primary" />
