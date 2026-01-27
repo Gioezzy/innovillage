@@ -36,7 +36,6 @@ export default async function StorePage({ params }: StorePageProps) {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Store Banner */}
       <div className="relative h-48 md:h-64 lg:h-80 bg-muted overflow-hidden">
         {store.banner_url ? (
           <Image
@@ -56,7 +55,6 @@ export default async function StorePage({ params }: StorePageProps) {
       <div className="max-w-7xl mx-auto px-4 -mt-20 relative z-10">
         <FadeIn>
           <div className="bg-card border border-border/50 rounded-2xl shadow-xl p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start">
-            {/* Store Logo/Image */}
             <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border-4 border-background shadow-md bg-muted flex-shrink-0">
                {store.image_url ? (
                   <Image
@@ -72,7 +70,6 @@ export default async function StorePage({ params }: StorePageProps) {
                )}
             </div>
 
-            {/* Store Info */}
             <div className="flex-grow space-y-4">
               <div>
                 <div className="flex items-center gap-3 flex-wrap mb-1">
@@ -98,15 +95,9 @@ export default async function StorePage({ params }: StorePageProps) {
                   <Calendar className="w-4 h-4" />
                   <span>Bergabung sejak {new Date(store.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}</span>
                 </div>
-                {/* Placeholder for location if added later */}
-                {/* <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>Sawahlunto, Sumatera Barat</span>
-                </div> */}
               </div>
             </div>
 
-            {/* Stats or Actions (Optional) */}
             <div className="flex gap-4 md:self-center">
                <div className="text-center px-4 py-2 bg-secondary/10 rounded-lg">
                  <p className="font-bold text-xl text-foreground">{products.length}</p>
@@ -116,13 +107,11 @@ export default async function StorePage({ params }: StorePageProps) {
           </div>
         </FadeIn>
 
-        {/* Store Products */}
         <div className="mt-12 space-y-8">
           <div className="flex items-center justify-between border-b border-border pb-4">
             <h2 className="font-heading text-2xl font-bold text-foreground">
               Koleksi Produk
             </h2>
-            {/* Filter/Sort could go here */}
           </div>
 
           {products.length > 0 ? (

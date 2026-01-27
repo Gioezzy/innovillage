@@ -159,7 +159,6 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
           <div className="space-y-2">
             <Label>Slug URL</Label>
             <Input value={slug} disabled />
-            {/* PERBAIKAN: Tambahkan hidden input untuk mengirim slug */}
             <input type="hidden" name="slug" value={slug} />
           </div>
 

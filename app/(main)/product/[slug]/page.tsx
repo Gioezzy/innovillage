@@ -124,25 +124,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
               )}
               
-              {/* Add to Cart Section */}
               <div className="p-6 bg-card border border-border rounded-xl shadow-sm space-y-4">
                 <div className="space-y-3">
                   <AddToCartButton product={product} />
-                  {/* Simple text removed, replaced by visual timeline below if needed, 
-                      but keeping a small note here is fine too or removing it to avoid duplication.
-                      Let's keep the cart button clean and put the timeline outside.
-                  */}
                 </div>
               </div>
 
-              {/* Visual Production Timeline */}
               {product.lead_time_days !== null && product.lead_time_days > 0 && (
                 <FadeIn delay={0.1}>
                   <ProductionTimeline leadTimeDays={product.lead_time_days} />
                 </FadeIn>
               )}
 
-              {/* Story Telling Section (Motif Philosophy) */}
               {motif && motif.philosophy && (
                 <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/10">
                   <h3 className="font-heading text-xl font-bold text-foreground mb-4 flex items-center gap-2">

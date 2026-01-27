@@ -65,7 +65,6 @@ export default async function StaffPage() {
                         </div>
                         <div>
                             <p className="font-medium text-foreground">{staff.full_name}</p>
-                            {/* Email is hard to get if not in profiles. Displaying Role instead or skipping */}
                         </div>
                       </div>
                     </td>

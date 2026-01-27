@@ -81,7 +81,6 @@ export default function NewStorePage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm space-y-6">
             
-            {/* Image Upload */}
             <div className="space-y-2">
               <Label>Logo Toko</Label>
               <div className="flex items-start gap-6">

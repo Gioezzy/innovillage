@@ -83,23 +83,18 @@ export default function ProductionTimeline({
               transition={{ delay: index * 0.1 }}
               className="relative pl-8 pb-8 md:pl-0 md:pb-0 md:text-center group"
             >
-              {/* Dot visualizer */}
               <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-background border-2 border-primary md:left-1/2 md:-top-[39px] md:-translate-x-1/2 z-10 group-hover:scale-125 transition-transform" />
 
-              {/* Icon */}
               <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center mb-3 md:mx-auto text-primary">
                 <step.icon className="w-5 h-5" />
               </div>
 
-              {/* Text Content */}
               <h4 className="font-bold text-sm text-foreground">
                 {step.title}
               </h4>
               <p className="text-xs text-muted-foreground mt-1 leading-snug">
                 {step.description}
               </p>
-
-              {/* Duration pill */}
               <span className="inline-block mt-2 px-2 py-0.5 bg-muted rounded text-[10px] font-medium text-muted-foreground">
                 ~{stepDays} Hari
               </span>
