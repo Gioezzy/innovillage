@@ -12,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Sparkles, Loader2 } from 'lucide-react';
+import { scanSongket } from '@/lib/actions/smart-lens';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -59,6 +60,7 @@ export default function ProductForm({
   initialData,
 }: ProductFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [isDetecting, setIsDetecting] = useState(false);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -88,8 +90,8 @@ export default function ProductForm({
     }
 
     for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Ukuran file maksimal 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Ukuran file maksimal 10MB');
         return;
       }
       if (!file.type.startsWith('image/')) {
@@ -107,6 +109,39 @@ export default function ProductForm({
       };
       reader.readAsDataURL(file);
     });
+
+    if (!formData.motif_id && files.length > 0) {
+        const fileToScan = files[0];
+        detectMotif(fileToScan);
+    }
+  };
+
+  const detectMotif = async (file: File) => {
+      setIsDetecting(true);
+      try {
+          const aiFormData = new FormData();
+          aiFormData.append('file', file);
+          const result = await scanSongket(aiFormData);
+          
+          if (result.success && result.data) {
+              const detectedName = result.data.motifName;
+              const match = motifs.find(m => 
+                  m.name.toLowerCase() === detectedName.toLowerCase() || 
+                  m.name.toLowerCase().includes(detectedName.toLowerCase())
+              );
+
+              if (match) {
+                  setFormData(prev => ({ ...prev, motif_id: match.id }));
+                  toast.success(`Motif terdeteksi: ${match.name}`, {
+                      icon: <Sparkles className="w-4 h-4 text-purple-500" />
+                  });
+              }
+          }
+      } catch (error) {
+          console.error("AI Detection failed", error);
+      } finally {
+          setIsDetecting(false);
+      }
   };
 
   const removeImage = (index: number) => {
@@ -186,7 +221,7 @@ export default function ProductForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <div className="space-y-2 w-full">
               <Label htmlFor="name">
                 Nama Produk <span className="text-red-500">*</span>
@@ -236,7 +271,15 @@ export default function ProductForm({
           </div>
 
           <div className="space-y-2 w-full">
-            <Label htmlFor="motif">Motif</Label>
+            <div className="flex items-center justify-between">
+                <Label htmlFor="motif">Motif</Label>
+                {isDetecting && (
+                    <span className="text-xs text-purple-600 flex items-center gap-1 animate-pulse font-medium">
+                        <Sparkles className="w-3 h-3" />
+                        Mendeteksi motif...
+                    </span>
+                )}
+            </div>
             <Select
               value={formData.motif_id}
               onValueChange={value =>
@@ -284,7 +327,7 @@ export default function ProductForm({
               <Input
                 id="price"
                 type="number"
-                value={formData.price}
+                value={formData.price === 0 ? '' : formData.price}
                 onChange={e =>
                   setFormData({ ...formData, price: Number(e.target.value) })
                 }
@@ -302,7 +345,7 @@ export default function ProductForm({
               <Input
                 id="stock"
                 type="number"
-                value={formData.stock_quantity}
+                value={formData.stock_quantity === 0 ? '' : formData.stock_quantity}
                 onChange={e =>
                   setFormData({
                     ...formData,
