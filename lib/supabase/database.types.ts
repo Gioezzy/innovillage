@@ -345,6 +345,9 @@ export type Database = {
           store_id: string | null
           updated_at: string | null
           weaving_time_days: number | null
+          shopee_url: string | null
+          tokopedia_url: string | null
+          padiumkm_url: string | null
         }
         Insert: {
           category_id?: string | null
@@ -366,6 +369,9 @@ export type Database = {
           store_id?: string | null
           updated_at?: string | null
           weaving_time_days?: number | null
+          shopee_url?: string | null
+          tokopedia_url?: string | null
+          padiumkm_url?: string | null
         }
         Update: {
           category_id?: string | null
@@ -387,6 +393,9 @@ export type Database = {
           store_id?: string | null
           updated_at?: string | null
           weaving_time_days?: number | null
+          shopee_url?: string | null
+          tokopedia_url?: string | null
+          padiumkm_url?: string | null
         }
         Relationships: [
           {
