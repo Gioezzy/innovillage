@@ -33,6 +33,12 @@ export default async function EditProductPage({
     .eq('is_active', true)
     .order('name');
 
+  const { data: motifs } = await supabase
+    .from('motifs')
+    .select('id, name')
+    .eq('is_active', true)
+    .order('name');
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
@@ -48,7 +54,11 @@ export default async function EditProductPage({
       </div>
 
       <div className="bg-white rounded-lg border p-6">
-        <ProductEditForm product={product} categories={categories || []} />
+        <ProductEditForm 
+          product={product} 
+          categories={categories || []} 
+          motifs={motifs || []} 
+        />
       </div>
     </div>
   );

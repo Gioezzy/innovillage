@@ -76,6 +76,9 @@ export default function ProductForm({
     weaving_time_days: initialData?.weaving_time_days || 3,
     is_limited: initialData?.is_limited || false,
     is_active: initialData?.is_active !== false,
+    shopee_url: '',
+    tokopedia_url: '',
+    padiumkm_url: '',
   });
 
   const [images, setImages] = useState<File[]>([]);
@@ -492,6 +495,56 @@ export default function ProductForm({
                 />
               </label>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Link Marketplace (Opsional)</CardTitle>
+          <CardDescription>
+            Tambahkan link produk di marketplace lain untuk memudahkan pembeli.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="shopee_url">Link Shopee</Label>
+            <Input
+              id="shopee_url"
+              value={formData.shopee_url}
+              onChange={e =>
+                setFormData({ ...formData, shopee_url: e.target.value })
+              }
+              placeholder="https://shopee.co.id/..."
+              disabled={isPending}
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tokopedia_url">Link Tokopedia</Label>
+            <Input
+              id="tokopedia_url"
+              value={formData.tokopedia_url}
+              onChange={e =>
+                setFormData({ ...formData, tokopedia_url: e.target.value })
+              }
+              placeholder="https://www.tokopedia.com/..."
+              disabled={isPending}
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="padiumkm_url">Link PadiUMKM</Label>
+            <Input
+              id="padiumkm_url"
+              value={formData.padiumkm_url}
+              onChange={e =>
+                setFormData({ ...formData, padiumkm_url: e.target.value })
+              }
+              placeholder="https://padiumkm.id/..."
+              disabled={isPending}
+              className="rounded-xl"
+            />
           </div>
         </CardContent>
       </Card>

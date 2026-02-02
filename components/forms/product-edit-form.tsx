@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -18,44 +18,50 @@ import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Product } from '@/lib/types';
 
 interface Category {
   id: string;
   name: string;
 }
 
-interface Product {
+interface Motif {
   id: string;
   name: string;
-  sku?: string;
-  description?: string;
-  price: number;
-  category_id: string;
-  lead_time_days: number;
-  is_active: boolean;
-  image_urls?: string[];
 }
 
 interface ProductEditFormProps {
   product: Product;
   categories: Category[];
+  motifs: Motif[];
 }
 
 export default function ProductEditForm({
   product,
   categories,
+  motifs,
 }: ProductEditFormProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: product.name,
-    sku: product.sku || '',
     description: product.description || '',
     price: product.price,
-    category_id: product.category_id,
-    lead_time_days: product.lead_time_days,
-    is_active: product.is_active,
+    category_id: product.category_id || '',
+    weaving_time_days: product.weaving_time_days || 1,
+    is_active: product.is_active !== false,
+    
+    motif_id: product.motif_id || '',
+    material: product.material || '',
+    color: product.color || '',
+    size: product.size || '',
+    stock_quantity: product.stock_quantity || 0,
+    is_limited: product.is_limited || false,
+
+    shopee_url: product.shopee_url || '',
+    tokopedia_url: product.tokopedia_url || '',
+    padiumkm_url: product.padiumkm_url || '',
   });
 
   const [existingImages, setExistingImages] = useState<string[]>(
@@ -174,31 +180,22 @@ export default function ProductEditForm({
     <form onSubmit={handleSubmit} className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Informasi Produk
-          </CardTitle>
+          <CardTitle>Informasi Produk</CardTitle>
+          <CardDescription>
+            Update informasi produk anda.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Nama Produk *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Contoh: Bordir Nama 3 Titik"
+              placeholder="Contoh: Salempang Barendo"
               required
               disabled={isPending}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="sku">SKU (Opsional)</Label>
-            <Input
-              id="sku"
-              value={formData.sku}
-              onChange={e => setFormData({ ...formData, sku: e.target.value })}
-              placeholder="Contoh: BRD-001"
-              disabled={isPending}
+              className="rounded-xl"
             />
           </div>
 
@@ -225,6 +222,28 @@ export default function ProductEditForm({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="motif">Motif</Label>
+            <Select
+              value={formData.motif_id}
+              onValueChange={value =>
+                setFormData({ ...formData, motif_id: value })
+              }
+              disabled={isPending}
+            >
+              <SelectTrigger className="rounded-xl w-full h-12 px-4">
+                <SelectValue placeholder="Pilih motif (Opsional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {motifs.map(motif => (
+                  <SelectItem key={motif.id} value={motif.id}>
+                    {motif.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="description">Deskripsi</Label>
             <Textarea
               id="description"
@@ -238,19 +257,12 @@ export default function ProductEditForm({
               className="rounded-xl"
             />
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Harga & Lead Time
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="price">Harga *</Label>
+              <Label htmlFor="price">
+                Harga <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="price"
                 type="number"
@@ -261,29 +273,96 @@ export default function ProductEditForm({
                 placeholder="0"
                 required
                 disabled={isPending}
+                className="rounded-xl"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lead_time">Lead Time (Hari) *</Label>
+              <Label htmlFor="stock">
+                Stok <span className="text-red-500">*</span>
+              </Label>
               <Input
-                id="lead_time"
+                id="stock"
                 type="number"
-                value={formData.lead_time_days}
+                value={formData.stock_quantity}
                 onChange={e =>
                   setFormData({
                     ...formData,
-                    lead_time_days: Number(e.target.value),
+                    stock_quantity: Number(e.target.value),
                   })
                 }
-                min="1"
+                min="0"
                 required
                 disabled={isPending}
+                className="rounded-xl"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="material">Bahan</Label>
+              <Input
+                id="material"
+                value={formData.material}
+                onChange={e =>
+                  setFormData({ ...formData, material: e.target.value })
+                }
+                placeholder="Contoh: Katun"
+                disabled={isPending}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="color">Warna</Label>
+              <Input
+                id="color"
+                value={formData.color}
+                onChange={e =>
+                  setFormData({ ...formData, color: e.target.value })
+                }
+                placeholder="Contoh: Merah Maroon"
+                disabled={isPending}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="size">Ukuran</Label>
+              <Input
+                id="size"
+                value={formData.size}
+                onChange={e =>
+                  setFormData({ ...formData, size: e.target.value })
+                }
+                placeholder="Contoh: 200cm x 110cm"
+                disabled={isPending}
+                className="rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="weaving_time">
+              Lama Pengerjaan (Hari) <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="weaving_time"
+              type="number"
+              value={formData.weaving_time_days}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  weaving_time_days: Number(e.target.value),
+                })
+              }
+              min="1"
+              required
+              disabled={isPending}
+              className="rounded-xl"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
             <input
               type="checkbox"
               id="is_active"
@@ -302,68 +381,121 @@ export default function ProductEditForm({
       </Card>
 
       <Card>
+          <CardHeader>
+            <CardTitle>Gambar Produk</CardTitle>
+            <CardDescription>
+              Upload minimal 1 gambar produk (Maksimal 5).
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {existingImages.map((image, index) => (
+                <div
+                  key={`exist-${index}`}
+                  className="relative aspect-square border rounded-xl overflow-hidden group"
+                >
+                  <Image src={image} alt="" fill className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(index)}
+                    className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <span className="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-2 py-1 rounded">Existing</span>
+                </div>
+              ))}
+
+              {newImagePreviews.map((preview, index) => (
+                <div
+                  key={`new-${index}`}
+                  className="relative aspect-square border rounded-xl overflow-hidden group"
+                >
+                  <Image src={preview} alt="" fill className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeNewImage(index)}
+                    className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                   <span className="absolute bottom-1 left-1 bg-green-500/80 text-white text-[10px] px-2 py-1 rounded">New</span>
+                </div>
+              ))}
+
+              {existingImages.length + newImages.length < 5 && (
+                <label className="aspect-square border-2 border-dashed border-muted-foreground/25 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition">
+                  <Upload className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+      <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Gambar Produk</CardTitle>
+          <CardTitle>Link Marketplace (Opsional)</CardTitle>
+          <CardDescription>
+            Tambahkan link produk di marketplace lain untuk memudahkan pembeli.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Label>Upload Gambar (maks 5)</Label>
-
-          <div className="grid grid-cols-5 gap-4 mt-2">
-            {existingImages.map((image, index) => (
-              <div
-                key={`exist-${index}`}
-                className="relative aspect-square border rounded-lg overflow-hidden"
-              >
-                <Image src={image} alt="" fill className="object-cover" />
-                <button
-                  type="button"
-                  onClick={() => removeExistingImage(index)}
-                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-
-            {newImagePreviews.map((preview, index) => (
-              <div
-                key={`new-${index}`}
-                className="relative aspect-square border rounded-lg overflow-hidden"
-              >
-                <Image src={preview} alt="" fill className="object-cover" />
-                <button
-                  type="button"
-                  onClick={() => removeNewImage(index)}
-                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-
-            {existingImages.length + newImages.length < 5 && (
-              <label className="aspect-square border border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50">
-                <Upload className="w-8 h-8 opacity-60 mb-1" />
-                <span className="text-xs text-gray-500">Upload</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-            )}
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="shopee_url">Link Shopee</Label>
+            <Input
+              id="shopee_url"
+              value={formData.shopee_url}
+              onChange={e =>
+                setFormData({ ...formData, shopee_url: e.target.value })
+              }
+              placeholder="https://shopee.co.id/..."
+              disabled={isPending}
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tokopedia_url">Link Tokopedia</Label>
+            <Input
+              id="tokopedia_url"
+              value={formData.tokopedia_url}
+              onChange={e =>
+                setFormData({ ...formData, tokopedia_url: e.target.value })
+              }
+              placeholder="https://www.tokopedia.com/..."
+              disabled={isPending}
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="padiumkm_url">Link PadiUMKM</Label>
+            <Input
+              id="padiumkm_url"
+              value={formData.padiumkm_url}
+              onChange={e =>
+                setFormData({ ...formData, padiumkm_url: e.target.value })
+              }
+              placeholder="https://padiumkm.id/..."
+              disabled={isPending}
+              className="rounded-xl"
+            />
           </div>
         </CardContent>
       </Card>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()}>
+        <Button type="button" variant="outline" onClick={() => router.back()} className="rounded-xl px-6">
           Batal
+        </Button>
+        <Button type="submit" disabled={isPending} className="rounded-xl px-6 shadow-lg shadow-primary/25">
+          {isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
         </Button>
       </div>
     </form>
