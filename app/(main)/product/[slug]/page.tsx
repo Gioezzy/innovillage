@@ -1,5 +1,6 @@
 import NotFound from '@/app/not-found';
 import { getProductBySlug, getRelatedProducts } from '@/lib/actions/product';
+import { Button } from '@/components/ui/button';
 import { formatRupiah, getProductImage } from '@/lib/utils';
 import Breadcrumb from '@/components/layout/breadcrumb';
 import AddToCartButton from '@/components/product/add-to-cart-button';
@@ -127,6 +128,38 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="p-6 bg-card border border-border rounded-xl shadow-sm space-y-4">
                 <div className="space-y-3">
                   <AddToCartButton product={product} />
+                  
+                  {(product.shopee_url || product.tokopedia_url || product.padiumkm_url) && (
+                    <div className="pt-4 border-t border-border mt-2">
+                       <p className="text-sm font-medium mb-3">
+                         Dapat dibeli di marketplace:
+                       </p>
+                       <div className="flex gap-2 flex-wrap">
+                         {product.shopee_url && (
+                           <Link href={product.shopee_url} target="_blank" rel="noopener noreferrer">
+                              <Button variant="outline" size="icon" title="Shopee" className="w-10 h-10 border-orange-200 hover:bg-orange-50 hover:text-orange-600 text-orange-600 rounded-full">
+                                <span className="font-bold text-xs">Shopee</span>
+                              </Button>
+                           </Link>
+                         )}
+                         {product.tokopedia_url && (
+                           <Link href={product.tokopedia_url} target="_blank" rel="noopener noreferrer">
+                              <Button variant="outline" size="icon" title="Tokopedia" className="w-10 h-10 border-green-200 hover:bg-green-50 hover:text-green-600 text-green-600 rounded-full">
+                                <span className="font-bold text-xs">Tokped</span>
+                              </Button>
+                           </Link>
+                         )}
+                         {product.padiumkm_url && (
+                           <Link href={product.padiumkm_url} target="_blank" rel="noopener noreferrer">
+                              <Button variant="outline" size="icon" title="PadiUMKM" className="w-10 h-10 border-blue-200 hover:bg-blue-50 hover:text-blue-600 text-blue-600 rounded-full">
+                                <span className="font-bold text-xs">Padi</span>
+                              </Button>
+                           </Link>
+                         )}
+                       </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
 

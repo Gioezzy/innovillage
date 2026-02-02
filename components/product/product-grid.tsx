@@ -18,6 +18,9 @@ interface Product {
   profile?: {
     full_name: string;
   } | null;
+  shopee_url?: string | null;
+  tokopedia_url?: string | null;
+  padiumkm_url?: string | null;
 }
 
 interface ProductGridProps {
