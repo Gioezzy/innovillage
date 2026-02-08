@@ -3,6 +3,9 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import sharp from 'sharp';
+import dns from 'node:dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 export type SmartLensResult = {
   success: boolean;
@@ -27,7 +30,7 @@ export type SmartLensResult = {
 
 export async function scanSongket(formData: FormData): Promise<SmartLensResult> {
   const supabaseAdmin = await createAdminClient();
-  const supabase = await createClient(); // Still need regular client for auth check later
+  const supabase = await createClient(); 
 
   try {
     const file = formData.get('file') as File;
@@ -60,7 +63,6 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
       .from('uploads')
       .getPublicUrl(fileName);
 
-    // Continue with user check using regular client (to respect auth state)
     const { data: { user } } = await supabase.auth.getUser();
     
     let imageRecordId = null;
@@ -85,10 +87,9 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
         console.log("Skipping DB insert: User not logged in.");
     }
 
-    // --- Optimization: Resize image before sending to AI ---
     console.time('Image_Optimization_Time');
     const optimizedBuffer = await sharp(buffer)
-      .resize(512, 512, { fit: 'inside' }) // 512px max dimension
+      .resize(512, 512, { fit: 'inside' }) 
       .toFormat('jpeg', { quality: 80 })
       .toBuffer();
     console.timeEnd('Image_Optimization_Time');
@@ -100,6 +101,22 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
 
     const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
     console.log(`Using AI Service at: ${AI_SERVICE_URL}`);
+    
+    // --- Connectivity Check (Warm-up) ---
+    try {
+        console.time('AI_Connectivity_Check');
+        const checkResponse = await fetch(AI_SERVICE_URL, { 
+            method: 'GET',
+            headers: { 'User-Agent': 'Innovillage-NextJS' },
+            cache: 'no-store'
+        });
+        console.log(`AI Connectivity Check: ${checkResponse.status} ${checkResponse.statusText}`);
+        console.timeEnd('AI_Connectivity_Check');
+    } catch (e: any) {
+        console.error('AI Connectivity Check Failed:', e.cause || e);
+        // We continue anyway, as the POST might still work if it's just a method not allowed on root
+    }
+
     console.time('AI_Response_Time');
 
     let aiResponse;
