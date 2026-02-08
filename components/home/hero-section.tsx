@@ -67,7 +67,7 @@ export default function HeroSection() {
               className="rounded-full text-lg px-8 h-12 border-2 gap-2"
               asChild
             >
-              <Link href="/scan">
+              <Link href="/smart-lens">
                 <Sparkles className="w-4 h-4" />
                 Coba AI Lens
               </Link>
