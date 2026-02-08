@@ -1,7 +1,8 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import sharp from 'sharp';
 
 export type SmartLensResult = {
   success: boolean;
@@ -25,39 +26,41 @@ export type SmartLensResult = {
 };
 
 export async function scanSongket(formData: FormData): Promise<SmartLensResult> {
-  const supabase = await createClient();
-  const file = formData.get('file') as File;
-
-  if (!file) {
-    return { success: false, message: 'No file provided' };
-  }
-
-  // Convert file to buffer for robust server-side upload
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  const fileName = `smart-lens/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-  
-  const { data: uploadData, error: uploadError } = await supabase.storage
-    .from('uploads')
-    .upload(fileName, buffer, {
-      contentType: file.type,
-      upsert: false
-    });
-
-  if (uploadError) {
-    console.error('Supabase Upload Error:', uploadError);
-    return { 
-      success: false, 
-      message: `Gagal mengupload gambar: ${uploadError.message}` 
-    };
-  }
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('uploads')
-    .getPublicUrl(fileName);
+  const supabaseAdmin = await createAdminClient();
+  const supabase = await createClient(); // Still need regular client for auth check later
 
   try {
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return { success: false, message: 'No file provided' };
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const fileName = `smart-lens/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+    
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from('uploads')
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Supabase Upload Error:', uploadError);
+      return { 
+        success: false, 
+        message: `Gagal mengupload gambar: ${uploadError.message}` 
+      };
+    }
+
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from('uploads')
+      .getPublicUrl(fileName);
+
+    // Continue with user check using regular client (to respect auth state)
     const { data: { user } } = await supabase.auth.getUser();
     
     let imageRecordId = null;
@@ -82,18 +85,40 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
         console.log("Skipping DB insert: User not logged in.");
     }
 
+    // --- Optimization: Resize image before sending to AI ---
+    console.time('Image_Optimization_Time');
+    const optimizedBuffer = await sharp(buffer)
+      .resize(512, 512, { fit: 'inside' }) // 512px max dimension
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer();
+    console.timeEnd('Image_Optimization_Time');
+
     const aiFormData = new FormData();
-    aiFormData.append('file', file);
+    const blob = new Blob([optimizedBuffer as any], { type: 'image/jpeg' });
+    console.log(`original size: ${buffer.length} bytes -> optimized size: ${optimizedBuffer.length} bytes`);
+    aiFormData.append('file', blob, 'optimized.jpg');
 
     const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
-    
-    const aiResponse = await fetch(`${AI_SERVICE_URL}/predict`, {
-      method: 'POST',
-      body: aiFormData,
-    });
+    console.log(`Using AI Service at: ${AI_SERVICE_URL}`);
+    console.time('AI_Response_Time');
+
+    let aiResponse;
+    try {
+        // Removed manual timeout to allow slow connections/cold starts to finish
+        aiResponse = await fetch(`${AI_SERVICE_URL}/predict`, {
+          method: 'POST',
+          body: aiFormData,
+        });
+    } catch (fetchError: any) {
+        console.error('AI Service Fetch Error:', fetchError);
+        return { success: false, message: `Gagal menghubungi AI Service: ${fetchError.message}` };
+    } finally {
+        console.timeEnd('AI_Response_Time');
+    }
 
     if (!aiResponse.ok) {
-      throw new Error(`AI Service failed: ${aiResponse.statusText}`);
+      console.error(`AI Service Failed: ${aiResponse.status} ${aiResponse.statusText}`);
+      throw new Error(`AI Service failed with status: ${aiResponse.status}`);
     }
 
     const aiResult = await aiResponse.json();
@@ -123,6 +148,7 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
         }
     }
 
+    // Update history record if it exists
     if (imageRecordId) {
         await supabase
             .from('motif_images')
@@ -152,8 +178,8 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
       },
     };
 
-  } catch (error) {
-    console.error('Smart Lens Error:', error);
-    return { success: false, message: 'Failed to process image with AI' };
+  } catch (error: any) {
+    console.error('Smart Lens Global Error:', error);
+    return { success: false, message: `Terjadi kesalahan sistem: ${error.message || 'Unknown error'}` };
   }
 }
