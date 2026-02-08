@@ -89,8 +89,8 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
 
     console.time('Image_Optimization_Time');
     const optimizedBuffer = await sharp(buffer)
-      .resize(512, 512, { fit: 'inside' }) 
-      .toFormat('jpeg', { quality: 80 })
+      .resize(1024, 1024, { fit: 'inside' }) 
+      .toFormat('jpeg', { quality: 90 })
       .toBuffer();
     console.timeEnd('Image_Optimization_Time');
 
