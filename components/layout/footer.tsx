@@ -20,8 +20,16 @@ const SOCIAL_LINKS = [
   { name: 'Twitter', icon: Twitter, url: '#' },
 ];
 
-export default function Footer() {
+import { createClient } from '@/lib/supabase/server';
+
+export default async function Footer() {
   const currentYear = new Date().getFullYear();
+  const supabase = await createClient();
+  
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, name, slug')
+    .limit(4);
 
   return (
     <footer className="bg-card border-t border-border mt-auto">
@@ -83,24 +91,24 @@ export default function Footer() {
               Koleksi Populer
             </h4>
             <ul className="space-y-3 text-sm">
-              {[
-                {
-                  name: 'Songket Balapak',
-                  href: '/category/songket-balapak',
-                },
-                { name: 'Songket Batabua', href: '/category/songket-batabua' },
-                { name: 'Selendang', href: '/category/selendang' },
-                { name: 'Semua Produk', href: '/shop' }, 
-              ].map(item => (
-                <li key={item.name}>
+              {categories?.map((category) => (
+                <li key={category.id}>
                   <Link
-                    href={item.href}
+                    href={`/category/${category.slug}`}
                     className="text-muted-foreground hover:text-primary transition-colors hover:underline decoration-primary decoration-2 underline-offset-4"
                   >
-                    {item.name}
+                    {category.name}
                   </Link>
                 </li>
               ))}
+              <li>
+                  <Link
+                    href="/shop"
+                    className="text-muted-foreground hover:text-primary transition-colors hover:underline decoration-primary decoration-2 underline-offset-4 font-medium"
+                  >
+                    Semua Produk
+                  </Link>
+              </li>
             </ul>
           </div>
 
