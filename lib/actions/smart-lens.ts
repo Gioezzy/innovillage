@@ -32,14 +32,25 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
     return { success: false, message: 'No file provided' };
   }
 
-  const fileName = `smart-lens/${Date.now()}-${file.name}`;
+  // Convert file to buffer for robust server-side upload
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const fileName = `smart-lens/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+  
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('uploads')
-    .upload(fileName, file);
+    .upload(fileName, buffer, {
+      contentType: file.type,
+      upsert: false
+    });
 
   if (uploadError) {
-    console.error('Upload Error:', uploadError);
-    return { success: false, message: 'Failed to upload image' };
+    console.error('Supabase Upload Error:', uploadError);
+    return { 
+      success: false, 
+      message: `Gagal mengupload gambar: ${uploadError.message}` 
+    };
   }
 
   const { data: { publicUrl } } = supabase.storage
