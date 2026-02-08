@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import FadeIn from '@/components/animations/fade-in';
 
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts(8);
+  const featuredProducts = await getFeaturedProducts(4);
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,7 +31,7 @@ export default async function HomePage() {
               </Link>
             </Button>
           </div>
-          <ProductGrid products={featuredProducts} />
+          <ProductGrid products={featuredProducts} imageQuality={60} />
         </FadeIn>
       )}
 

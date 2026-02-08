@@ -30,9 +30,11 @@ interface ProductCardProps {
     tokopedia_url?: string | null;
     padiumkm_url?: string | null;
   };
+  imageQuality?: number;
+  priority?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, imageQuality = 75, priority = false }: ProductCardProps) {
   const imageUrl = getProductImage(product.image_urls);
 
   return (
@@ -42,6 +44,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           src={imageUrl}
           alt={product.name}
           fill
+          quality={imageQuality}
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
         />
 

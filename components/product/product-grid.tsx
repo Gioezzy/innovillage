@@ -25,9 +25,10 @@ interface Product {
 
 interface ProductGridProps {
   products: Product[];
+  imageQuality?: number;
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
+export default function ProductGrid({ products, imageQuality = 75 }: ProductGridProps) {
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -53,7 +54,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
     >
       {products.map(product => (
         <motion.div key={product.id} variants={item}>
-          <ProductCard product={product} />
+          <ProductCard product={product} imageQuality={imageQuality} />
         </motion.div>
       ))}
     </motion.div>

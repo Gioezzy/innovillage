@@ -28,6 +28,7 @@ export type SmartLensResult = {
   };
 };
 
+
 export async function scanSongket(formData: FormData): Promise<SmartLensResult> {
   const supabaseAdmin = await createAdminClient();
   const supabase = await createClient(); 
@@ -87,10 +88,12 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
         console.log("Skipping DB insert: User not logged in.");
     }
 
+    // --- Optimization: Resize image before sending to AI ---
+    // Model uses 224x224, so 512x512 is plenty. 1024x1024 is wasteful.
     console.time('Image_Optimization_Time');
     const optimizedBuffer = await sharp(buffer)
-      .resize(1024, 1024, { fit: 'inside' }) 
-      .toFormat('jpeg', { quality: 90 })
+      .resize(512, 512, { fit: 'inside' }) 
+      .toFormat('jpeg', { quality: 85 })
       .toBuffer();
     console.timeEnd('Image_Optimization_Time');
 
@@ -139,6 +142,15 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
     }
 
     const aiResult = await aiResponse.json();
+
+    // Confidence Threshold Check
+    // If confidence is below 45%, treat as unknown/failure to avoid bad guesses.
+    if (aiResult.confidence < 0.45) {
+        return {
+            success: false,
+            message: `Motif tidak dikenali secara pasti (Akurasi: ${(aiResult.confidence * 100).toFixed(1)}%). Pastikan gambar jelas dan fokus pada motif kain.`
+        };
+    }
     const { data: motifData } = await supabase
       .from('motifs')
       .select('*')

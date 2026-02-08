@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { scanSongket } from '@/lib/actions/smart-lens';
 import { UploadCloud, Loader2, ScanLine, Info, History as HistoryIcon, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
@@ -13,6 +13,21 @@ export default function SmartLensPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+
+  // Wake up AI service on mount (Client-Side fetch to bypass Node.js issues)
+  useEffect(() => {
+    const wakeUpClientSide = async () => {
+      try {
+        const AI_URL = 'https://gioezzy-fast-api.hf.space'; 
+        console.log('[WakeUp] Pinging AI Service from Browser...');
+        await fetch(AI_URL, { method: 'GET', cache: 'no-store', mode: 'cors' });
+        console.log('[WakeUp] Success (Client-Side)');
+      } catch (e) {
+        console.log('[WakeUp] Failed (Client-Side):', e);
+      }
+    };
+    wakeUpClientSide();
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
