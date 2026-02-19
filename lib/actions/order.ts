@@ -101,6 +101,8 @@ export async function createOrderAction(input: CreateOrderInput) {
       store_id: storeId,
       shipping_address: input.address, 
       shipping_cost: shippingCost,
+      platform_fee: totalAmount * 0.01,
+      net_amount: totalAmount * 0.99,
     })
     .select()
     .single()
