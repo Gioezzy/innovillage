@@ -20,7 +20,7 @@ export default function TermsPage() {
                 Syarat & Ketentuan
               </h1>
               <p className="text-muted-foreground">
-                Terakhir diperbarui: 16 Januari 2026
+                Terakhir diperbarui: 19 Februari 2026
               </p>
             </div>
 
@@ -29,7 +29,7 @@ export default function TermsPage() {
 
               <div className="prose prose-slate dark:prose-invert max-w-none">
                 <p className="lead text-lg text-muted-foreground">
-                  Selamat datang di Innovillage. Dengan mengakses platform kami, Anda menyetujui syarat dan ketentuan berikut.
+                  Selamat datang di Innovillage. Dengan mengakses platform kami, Anda menyetujui syarat dan ketentuan berikut sesuai dengan Peraturan Pemerintah No. 80 Tahun 2019 tentang PMSE.
                 </p>
 
                 <div className="space-y-12 mt-8">
@@ -38,23 +38,11 @@ export default function TermsPage() {
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">
                         1
                       </span>
-                      Definisi
+                      Definisi & Akun
                     </h2>
                     <ul className="mt-4 list-disc pl-5 space-y-2 text-muted-foreground">
-                      <li>
-                        <strong>&quot;Layanan&quot;</strong>: Platform marketplace
-                        Innovillage dan fitur-fitur terkait.
-                      </li>
-                      <li>
-                        <strong>&quot;Pengguna&quot;</strong>:
-                        Pembeli, Penjual (Mitra UMKM), dan pengunjung situs.
-                      </li>
-                      <li>
-                        <strong>&quot;Penjual&quot;</strong>: Pihak UMKM Desa yang membuka toko di platform.
-                      </li>
-                      <li>
-                        <strong>&quot;Produk&quot;</strong>: Barang kerajinan, pangan, atau produk desa lainnya yang dijual oleh Penjual.
-                      </li>
+                      <li><strong>Pengguna:</strong> Pihak yang menggunakan layanan Innovillage, termasuk Pembeli dan Penjual (UMKM).</li>
+                      <li><strong>Akun:</strong> Anda bertanggung jawab penuh atas keamanan akun dan kata sandi Anda. Kami berhak menangguhkan akun yang terindikasi melakukan pelanggaran hukum atau penipuan.</li>
                     </ul>
                   </section>
 
@@ -63,11 +51,13 @@ export default function TermsPage() {
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">
                         2
                       </span>
-                      Akun Pengguna
+                      Transaksi & Pembayaran
                     </h2>
-                    <p className="mt-4 text-muted-foreground">
-                      Anda bertanggung jawab untuk menjaga kerahasiaan akun dan kata sandi Anda. Kami berhak menangguhkan akun yang melanggar kebijakan komunitas atau melakukan aktivitas penipuan.
-                    </p>
+                    <div className="mt-4 space-y-2 text-muted-foreground">
+                      <p>2.1. Harga yang tertera adalah harga final, belum termasuk ongkos kirim kecuali disebutkan lain.</p>
+                      <p>2.2. Pembayaran wajib dilakukan melalui metode resmi yang tersedia di Platform (Midtrans). Kami tidak bertanggung jawab atas transaksi di luar platform.</p>
+                      <p>2.3. Dana akan diteruskan ke Penjual setelah Pesanan Dikonfirmasi Diterima oleh Pembeli atau 2x24 jam setelah barang sampai.</p>
+                    </div>
                   </section>
 
                   <section>
@@ -75,10 +65,10 @@ export default function TermsPage() {
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">
                         3
                       </span>
-                      Transaksi & Pembayaran
+                      Barang Terlarang
                     </h2>
                     <p className="mt-4 text-muted-foreground">
-                      Pembayaran dilakukan melalui gateway resmi Innovillage. Dana akan diteruskan ke Penjual setelah pesanan dikonfirmasi diterima oleh Pembeli.
+                      Penjual dilarang menawarkan barang yang: (a) Melanggar Hak Kekayaan Intelektual; (b) Barang ilegal/narkotika; (c) Barang yang mengandung unsur SARA atau pornografi; (d) Barang lain yang dilarang oleh hukum Indonesia.
                     </p>
                   </section>
 
@@ -87,10 +77,16 @@ export default function TermsPage() {
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">
                         4
                       </span>
-                      Ketentuan Penjual
+                      Kebijakan Pengembalian (Refund)
                     </h2>
                     <div className="mt-4 p-4 bg-muted rounded-lg border border-border/50 text-muted-foreground text-sm">
-                      Penjual wajib menjamin bahwa produk yang dijual adalah asli, legal, dan sesuai dengan deskripsi. Penjual dilarang menjual barang terlarang sesuai hukum Indonesia.
+                      <p className="font-semibold mb-2">Syarat Pengajuan Komplain:</p>
+                      <ul className="list-disc pl-4 space-y-1">
+                        <li>Wajib menyertakan Video Unboxing tanpa jeda.</li>
+                        <li>Barang tidak sesuai deskripsi, rusak, atau kurang jumlah.</li>
+                        <li>Pengajuan maksimal 1x24 jam setelah status barang diterima.</li>
+                      </ul>
+                      <p className="mt-2">Dana akan dikembalikan ke saldo dompet pengguna atau limit kartu kredit sesuai kebijakan bank penerbit.</p>
                     </div>
                   </section>
 
@@ -99,10 +95,10 @@ export default function TermsPage() {
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">
                         5
                       </span>
-                      Kebijakan Pengembalian (Refund)
+                      Penyelesaian Sengketa
                     </h2>
                     <p className="mt-4 text-muted-foreground">
-                      Pengajuan komplain atau refund dapat dilakukan melalui pusat resolusi jika barang tidak sesuai pesanan atau rusak. Keputusan refund akan dimediasi oleh tim Innovillage berdasarkan bukti yang valid.
+                      Setiap perselisihan akan diselesaikan secara musyawarah mufakat. Jika tidak tercapai kesepakatan, para pihak sepakat untuk menyelesaikannya melalui BPSK (Badan Penyelesaian Sengketa Konsumen) atau Pengadilan di wilayah hukum Republik Indonesia.
                     </p>
                   </section>
                 </div>
@@ -111,8 +107,7 @@ export default function TermsPage() {
 
             <div className="bg-muted p-6 text-center text-sm text-muted-foreground border-t border-border/50">
               <p>
-                Jika ada pertanyaan lebih lanjut, silakan hubungi tim support
-                kami.
+                Jika ada pertanyaan lebih lanjut, silakan hubungi <a href="mailto:support@songket.id" className="text-primary hover:underline">support@songket.id</a>
               </p>
             </div>
           </div>
@@ -121,3 +116,4 @@ export default function TermsPage() {
     </div>
   );
 }
+

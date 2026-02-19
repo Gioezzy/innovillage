@@ -113,10 +113,10 @@ export default async function Footer() {
           </div>
 
           <div>
-            <h4 className="font-heading font-semibold text-foreground mb-6 tracking-wide text-lg">
+             <h4 className="font-heading font-semibold text-foreground mb-6 tracking-wide text-lg">
               Hubungi Kami
             </h4>
-            <ul className="space-y-4 text-sm text-muted-foreground">
+            <ul className="space-y-4 text-sm text-muted-foreground mb-8">
               <li className="flex items-start">
                 <div className="bg-primary/10 p-2 rounded-md mr-3 mt-0.5">
                   <Phone className="w-4 h-4 text-primary" />
@@ -142,10 +142,10 @@ export default async function Footer() {
                     Email
                   </span>
                   <a
-                    href="mailto:hello@songket.id"
+                    href="mailto:support@songket.id"
                     className="hover:text-foreground transition-colors break-all"
                   >
-                    hello@songket.id
+                    support@songket.id
                   </a>
                 </div>
               </li>
@@ -161,6 +161,26 @@ export default async function Footer() {
                 </div>
               </li>
             </ul>
+
+            <div className="pt-2">
+                <h5 className="font-heading font-semibold text-foreground mb-3 text-sm">
+                    Jaminan Keamanan
+                </h5>
+                <div className="flex flex-wrap gap-2">
+                     <div className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-medium border border-green-100 flex items-center">
+                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                        SSL Secured
+                     </div>
+                     <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium border border-blue-100 flex items-center">
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>
+                        Midtrans
+                     </div>
+                     <div className="bg-purple-50 text-purple-700 px-2 py-1 rounded text-xs font-medium border border-purple-100 flex items-center">
+                        <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></span>
+                        PDP Compliant
+                     </div>
+                </div>
+            </div>
           </div>
         </div>
 

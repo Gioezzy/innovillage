@@ -5,7 +5,7 @@ import FadeIn from '@/components/animations/fade-in';
 export const metadata: Metadata = {
   title: 'Kebijakan Privasi - Innovillage',
   description:
-    'Kebijakan Privasi Innovillage tentang bagaimana kami mengelola data Anda.',
+    'Kebijakan Privasi Innovillage tentang bagaimana kami mengelola data Anda sesuai dengan UU PDP.',
 };
 
 export default function PrivacyPage() {
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
                 Kebijakan Privasi
               </h1>
               <p className="text-muted-foreground">
-                Komitmen kami untuk melindungi data pribadi dan kepercayaan Anda.
+                Komitmen kami untuk melindungi data pribadi Anda sesuai UU Perlindungan Data Pribadi (PDP).
               </p>
             </div>
 
@@ -30,84 +30,97 @@ export default function PrivacyPage() {
 
               <div className="prose prose-slate dark:prose-invert max-w-none">
                 <p className="lead text-lg text-muted-foreground">
-                  Di Innovillage, privasi Anda adalah prioritas kami. Dokumen
-                  ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan
-                  melindungi informasi pribadi Anda saat menggunakan platform marketplace kami.
+                  Di Innovillage ("Kami"), privasi Anda adalah prioritas utama. Dokumen ini menjelaskan bagaimana kami mengumpulkan, menggunakan, memproses, dan melindungi Data Pribadi Anda saat menggunakan platform kami, sesuai dengan peraturan perundang-undangan yang berlaku di Indonesia.
                 </p>
 
                 <div className="space-y-10 mt-8">
                   <section>
                     <h2 className="text-xl font-bold text-foreground font-heading mb-3">
-                      1. Informasi yang Kami Kumpulkan
+                      1. Pengendali Data
                     </h2>
                     <p className="text-muted-foreground">
-                      Kami mengumpulkan informasi yang Anda berikan saat
-                      mendaftar sebagai pembeli atau penjual:
+                      Pengendali Data Pribadi Anda adalah <strong>PT Innovillage Indonesia</strong>. Jika Anda memiliki pertanyaan mengenai pemrosesan data, Anda dapat menghubungi Petugas Perlindungan Data (Data Protection Officer) kami di:
+                    </p>
+                    <p className="mt-2 font-medium">Email: support@songket.id</p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-xl font-bold text-foreground font-heading mb-3">
+                      2. Data yang Kami Kumpulkan
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Kami mengumpulkan data berikut untuk memproses layanan:
                     </p>
                     <ul className="mt-2 list-disc pl-5 text-muted-foreground">
-                      <li>Nama lengkap, alamat email, dan nomor kontak.</li>
-                      <li>Alamat pengiriman (untuk pembeli) dan alamat toko (untuk penjual).</li>
-                      <li>Riwayat transaksi dan data produk.</li>
+                      <li><strong>Data Identitas:</strong> Nama lengkap, NIK (jika dperlukan untuk verifikasi penjual).</li>
+                      <li><strong>Data Kontak:</strong> Alamat email, nomor telepon, alamat pengiriman/penjemputan.</li>
+                      <li><strong>Data Transaksi:</strong> Rincian pesanan, riwayat pembelian, dan metode pembayaran.</li>
+                      <li><strong>Data Teknis:</strong> Alamat IP, jenis perangkat, dan data log aktivitas (cookies).</li>
                     </ul>
                   </section>
 
                   <section>
                     <h2 className="text-xl font-bold text-foreground font-heading mb-3">
-                      2. Bagaimana Kami Menggunakan Data Anda
+                      3. Tujuan Pemrosesan Data
                     </h2>
                     <p className="text-muted-foreground">
-                      Data Anda digunakan untuk:
+                      Data Anda diproses untuk tujuan:
                     </p>
                     <ul className="mt-2 list-disc pl-5 text-muted-foreground">
-                      <li>Memfasilitasi transaksi jual beli yang aman.</li>
-                      <li>Mengelola pesanan dan pengiriman logistik.</li>
-                      <li>
-                        Menghubungkan pembeli dengan penjual UMKM desa.
-                      </li>
-                      <li>Meningkatkan layanan dan rekomendasi produk.</li>
+                      <li>Memproses dan mengirimkan pesanan Anda.</li>
+                      <li>Memverifikasi identitas dan mencegah penipuan.</li>
+                      <li>Meningkatkan layanan melalui analisis penggunaan (AI Smart Lens).</li>
+                      <li>Mengirimkan informasi terkait transaksi atau pembaruan layanan.</li>
                     </ul>
                   </section>
 
                   <section>
                     <h2 className="text-xl font-bold text-foreground font-heading mb-3">
-                      3. Keamanan Data
+                      4. Hak Subjek Data
                     </h2>
                     <p className="text-muted-foreground">
-                      Kami menerapkan enkripsi dan langkah-langkah keamanan teknis standar industri untuk
-                      melindungi data Anda dari akses yang tidak sah. Informasi pembayaran diproses melalui gateway yang aman.
-                    </p>
-                  </section>
-
-                  <section>
-                    <h2 className="text-xl font-bold text-foreground font-heading mb-3">
-                      4. Berbagi Informasi
-                    </h2>
-                    <p className="text-muted-foreground">
-                      Kami <strong>tidak</strong> menjual informasi
-                      pribadi Anda. Kami hanya membagikan
-                      data yang diperlukan kepada:
+                      Sesuai dengan UU PDP, Anda memiliki hak untuk:
                     </p>
                     <ul className="mt-2 list-disc pl-5 text-muted-foreground">
-                        <li>Penjual (untuk memproses pesanan Anda).</li>
-                        <li>Mitra logistik (untuk pengiriman).</li>
-                        <li>Pihak berwenang (jika diwajibkan oleh hukum).</li>
+                      <li><strong>Hak Akses:</strong> Meminta salinan data pribadi yang kami miliki tentang Anda.</li>
+                      <li><strong>Hak Koreksi:</strong> Meminta perbaikan data yang tidak akurat.</li>
+                      <li><strong>Hak Penghapusan:</strong> Meminta penghapusan data Anda (tertakluk pada kewajiban hukum retensi data).</li>
+                      <li><strong>Hak Penarikan Persetujuan:</strong> Menarik persetujuan pemrosesan data kapan saja.</li>
                     </ul>
+                    <p className="mt-2 text-muted-foreground">
+                      Untuk menggunakan hak-hak ini, silakan hubungi kami melalui email layanan pelanggan.
+                    </p>
                   </section>
 
                   <section>
                     <h2 className="text-xl font-bold text-foreground font-heading mb-3">
-                      5. Kontrol Pengguna
+                      5. Penyimpanan & Keamanan Data
                     </h2>
                     <p className="text-muted-foreground">
-                      Anda dapat mengakses, memperbarui, atau menghapus akun Anda kapan saja melalui pengaturan profil.
+                      Kami menyimpan data Anda selama akun Anda aktif atau selama diperlukan untuk memenuhi kewajiban hukum (minimal 5 tahun untuk data transaksi keuangan).
+                      Kami menggunakan enkripsi standar industri (SSL/TLS) dan membatasi akses data hanya kepada karyawan yang berwenang.
                     </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-xl font-bold text-foreground font-heading mb-3">
+                      6. Pengungkapan kepada Pihak Ketiga
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Kami dapat membagikan data Anda kepada:
+                    </p>
+                    <ul className="mt-2 list-disc pl-5 text-muted-foreground">
+                      <li><strong>Mitra Logistik:</strong> Untuk pengiriman barang (JNE, J&T, dll).</li>
+                      <li><strong>Payment Gateway:</strong> Untuk memproses pembayaran (Midtrans).</li>
+                      <li><strong>Penegak Hukum:</strong> Jika diwajibkan oleh perintah pengadilan atau undang-undang.</li>
+                    </ul>
                   </section>
                 </div>
               </div>
             </div>
 
             <div className="bg-muted p-6 text-center text-sm text-muted-foreground border-t border-border/50">
-              <p>Terakhir diperbarui: 16 Januari 2026</p>
+              <p>Terakhir diperbarui: 19 Februari 2026</p>
             </div>
           </div>
         </FadeIn>
