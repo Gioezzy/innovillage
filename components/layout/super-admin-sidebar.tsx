@@ -6,10 +6,13 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   Store,
+  Banknote,
   LogOut,
   FolderOpen,
   Home,
   Menu,
+  Activity,
+  BookOpen,
 } from 'lucide-react';
 import { logoutAction } from '@/lib/actions/auth';
 import { useState, useTransition } from 'react';
@@ -27,9 +30,24 @@ const menuItems = [
     icon: Store,
   },
   {
+    title: 'Pencairan Dana',
+    href: '/super-admin/payouts',
+    icon: Banknote,
+  },
+  {
     title: 'Kategori',
     href: '/super-admin/category',
     icon: FolderOpen,
+  },
+  {
+    title: 'Traffic & QoS',
+    href: '/super-admin/traffic',
+    icon: Activity,
+  },
+  {
+    title: 'Panduan',
+    href: '/super-admin/manual',
+    icon: BookOpen,
   },
 ];
 

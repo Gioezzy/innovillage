@@ -15,6 +15,8 @@ import {
   TrendingUp,
   Store,
   Users,
+  Banknote,
+  BookOpen,
 } from 'lucide-react';
 import { logoutAction } from '@/lib/actions/auth';
 import { useState, useTransition } from 'react';
@@ -58,6 +60,18 @@ const allMenuItems = [
       href: '/admin/staff',
       icon: Users,
       roles: ['admin'],
+  },
+  {
+      title: 'Keuangan',
+      href: '/admin/finance',
+      icon: Banknote,
+      roles: ['admin'],
+  },
+  {
+    title: 'Panduan',
+    href: '/admin/manual',
+    icon: BookOpen,
+    roles: ['admin', 'artisan'],
   },
 ];
 
