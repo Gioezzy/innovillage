@@ -4,6 +4,8 @@ import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from 'sonner';
 import { CartProvider } from '@/context/cart-context';
+import CookieConsent from '@/components/layout/cookie-consent';
+import TrafficTracker from '@/components/analytics/traffic-tracker';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -32,10 +34,14 @@ export default function RootLayout({
       >
         <CartProvider>
           <NextTopLoader color="#D4AF37" showSpinner={false} />
+          <TrafficTracker />
           {children}
+          <CookieConsent />
           <Toaster position="top-center" richColors />
         </CartProvider>
       </body>
     </html>
   );
 }
+
+
