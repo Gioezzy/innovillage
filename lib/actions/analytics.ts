@@ -147,3 +147,58 @@ export const getAdminAnalytics = cache(async () => {
   };
 });
 
+export const getSuperAdminAnalytics = cache(async () => {
+    const supabase = await createClient();
+  
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+  
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+  
+    if (!profile || profile.role !== 'super_admin') {
+      return null;
+    }
+
+    // 1. Total Revenue (All Stores)
+    const { data: revenueData } = await supabase
+        .from('orders')
+        .select('total_amount')
+        .in('status', ['paid', 'in_production', 'ready_for_pickup', 'completed']);
+    
+    const totalRevenue = revenueData?.reduce((acc, curr) => acc + curr.total_amount, 0) || 0;
+
+    // 2. Total Users & Stores
+    const { count: totalUsers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+    
+    const { count: totalStores } = await supabase
+        .from('stores')
+        .select('*', { count: 'exact', head: true });
+    
+    const { count: activeStores } = await supabase
+        .from('stores')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+    // 3. Traffic Overview (Current Month)
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const { count: monthTraffic } = await supabase
+        .from('website_traffic')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', startOfMonth.toISOString());
+
+    return {
+        totalRevenue,
+        totalUsers: totalUsers || 0,
+        totalStores: totalStores || 0,
+        activeStores: activeStores || 0,
+        monthTraffic: monthTraffic || 0,
+    };
+});
