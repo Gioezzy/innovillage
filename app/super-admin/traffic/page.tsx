@@ -1,6 +1,6 @@
 import { getTrafficStats } from '@/lib/actions/traffic';
 import StatsCard from '@/components/admin/stats-card';
-import { Eye, TrendingUp, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Eye, TrendingUp, ShieldCheck, AlertCircle, ScanLine } from 'lucide-react';
 import FadeIn from '@/components/animations/fade-in';
 import { formatDateTime } from '@/lib/utils';
 
@@ -33,7 +33,7 @@ export default async function TrafficPage() {
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           <StatsCard
             title="Total Kunjungan"
             value={stats.totalVisits}
@@ -50,18 +50,21 @@ export default async function TrafficPage() {
             className="bg-card from-green-500/5 to-transparent bg-gradient-to-br"
           />
 
-           <div className="bg-card rounded-2xl border border-border/50 p-6 shadow-sm flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-4">
-                 <h3 className="text-sm font-medium text-muted-foreground">System Status</h3>
-                 <div className="p-2 bg-green-100 rounded-full text-green-600">
-                    <ShieldCheck className="w-5 h-5" />
-                 </div>
-             </div>
-             <div>
-                 <div className="text-2xl font-bold text-foreground mb-1">Optimal</div>
-                 <p className="text-xs text-muted-foreground">Server Load: Normal</p>
-             </div>
-          </div>
+          <StatsCard
+            title="Total Upload Scan Motif"
+            value={stats.totalMotifScans}
+            description="Semua waktu, dari Smart Lens"
+            icon={ScanLine}
+            className="bg-card from-purple-500/5 to-transparent bg-gradient-to-br"
+          />
+
+          <StatsCard
+            title="Scan Motif Bulan Ini"
+            value={stats.monthMotifScans}
+            description="Upload scan di bulan ini"
+            icon={ScanLine}
+            className="bg-card from-orange-500/5 to-transparent bg-gradient-to-br"
+          />
         </div>
       </FadeIn>
 

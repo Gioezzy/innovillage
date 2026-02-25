@@ -53,9 +53,20 @@ export async function getTrafficStats() {
         .order('created_at', { ascending: false })
         .limit(100);
 
+    const { count: totalMotifScans } = await supabase
+        .from('motif_images')
+        .select('id', { count: 'exact', head: true });
+
+    const { count: monthMotifScans } = await supabase
+        .from('motif_images')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', startOfMonth.toISOString());
+
     return {
         totalVisits: totalVisits || 0,
         monthVisits: monthVisits || 0,
-        recentTraffic: recentTraffic || []
+        recentTraffic: recentTraffic || [],
+        totalMotifScans: totalMotifScans || 0,
+        monthMotifScans: monthMotifScans || 0,
     };
 }
