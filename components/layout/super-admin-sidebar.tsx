@@ -13,48 +13,66 @@ import {
   Menu,
   Activity,
   BookOpen,
+  ClipboardList,
 } from 'lucide-react';
 import { logoutAction } from '@/lib/actions/auth';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
-const menuItems = [
-  {
-    title: 'Dashboard',
-    href: '/super-admin',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Kelola Toko',
-    href: '/super-admin/stores',
-    icon: Store,
-  },
-  {
-    title: 'Pencairan Dana',
-    href: '/super-admin/payouts',
-    icon: Banknote,
-  },
-  {
-    title: 'Kategori',
-    href: '/super-admin/category',
-    icon: FolderOpen,
-  },
-  {
-    title: 'Traffic & QoS',
-    href: '/super-admin/traffic',
-    icon: Activity,
-  },
-  {
-    title: 'Panduan',
-    href: '/super-admin/manual',
-    icon: BookOpen,
-  },
-];
+interface MenuItem {
+  title: string;
+  href: string;
+  icon: React.ElementType;
+  badge?: number;
+}
 
-export default function SuperAdminSidebar() {
+interface SuperAdminSidebarProps {
+  pendingRequestCount?: number;
+}
+
+export default function SuperAdminSidebar({ pendingRequestCount = 0 }: SuperAdminSidebarProps) {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(true);
+
+  const menuItems: MenuItem[] = [
+    {
+      title: 'Dashboard',
+      href: '/super-admin',
+      icon: LayoutDashboard,
+    },
+    {
+      title: 'Kelola Toko',
+      href: '/super-admin/stores',
+      icon: Store,
+    },
+    {
+      title: 'Request Toko',
+      href: '/super-admin/store-requests',
+      icon: ClipboardList,
+      badge: pendingRequestCount,
+    },
+    {
+      title: 'Pencairan Dana',
+      href: '/super-admin/payouts',
+      icon: Banknote,
+    },
+    {
+      title: 'Kategori',
+      href: '/super-admin/category',
+      icon: FolderOpen,
+    },
+    {
+      title: 'Traffic & QoS',
+      href: '/super-admin/traffic',
+      icon: Activity,
+    },
+    {
+      title: 'Panduan',
+      href: '/super-admin/manual',
+      icon: BookOpen,
+    },
+  ];
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -117,25 +135,45 @@ export default function SuperAdminSidebar() {
           const Icon = item.icon;
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + '/');
+          const hasBadge = !!item.badge && item.badge > 0;
 
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group',
+                'flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group relative',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
-              <Icon
-                className={cn(
-                  'w-5 h-5 transition-transform group-hover:scale-110',
-                  isActive ? 'text-primary-foreground' : ''
+              <div className="relative shrink-0">
+                <Icon
+                  className={cn(
+                    'w-5 h-5 transition-transform group-hover:scale-110',
+                    isActive ? 'text-primary-foreground' : ''
+                  )}
+                />
+                {hasBadge && !open && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {item.badge! > 9 ? '9+' : item.badge}
+                  </span>
                 )}
-              />
-              {open && <span className="font-medium">{item.title}</span>}
+              </div>
+              {open && (
+                <div className="flex items-center justify-between flex-1">
+                  <span className="font-medium">{item.title}</span>
+                  {hasBadge && (
+                    <span className={cn(
+                      'text-xs font-bold px-2 py-0.5 rounded-full',
+                      isActive ? 'bg-white/20 text-white' : 'bg-red-500 text-white'
+                    )}>
+                      {item.badge! > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
+                </div>
+              )}
             </Link>
           );
         })}

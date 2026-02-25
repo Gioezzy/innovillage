@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Camera,
   ShoppingBag,
+  Store,
 } from 'lucide-react';
 import NotificationBell from '../notifications/notification-bell';
 import Link from 'next/link';
@@ -235,6 +236,13 @@ export default function Navbar() {
                           <User className="w-4 h-4" />
                           <span>Profile</span>
                         </Link>
+                        <Link
+                          href="/open-shop"
+                          className="flex items-center gap-3 px-4 py-2.5 text-primary hover:bg-primary/5 transition-colors text-sm font-medium"
+                        >
+                          <Store className="w-4 h-4" />
+                          <span>Buka Toko</span>
+                        </Link>
                         <div className="border-t my-1"></div>
                         <button
                           onClick={handleLogout}
@@ -348,13 +356,22 @@ export default function Navbar() {
                 {!isLoading && (
                   <>
                     {user ? (
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center space-x-3 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg font-medium transition-colors"
-                      >
-                        <LayoutDashboard className="w-5 h-5" />
-                        <span>Akun Saya</span>
-                      </Link>
+                      <>
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center space-x-3 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg font-medium transition-colors"
+                        >
+                          <LayoutDashboard className="w-5 h-5" />
+                          <span>Akun Saya</span>
+                        </Link>
+                        <Link
+                          href="/open-shop"
+                          className="flex items-center space-x-3 px-4 py-3 text-primary hover:bg-primary/5 rounded-lg font-medium transition-colors"
+                        >
+                          <Store className="w-5 h-5" />
+                          <span>Buka Toko</span>
+                        </Link>
+                      </>
                     ) : (
                       <Link
                         href="/login"
