@@ -100,6 +100,7 @@ export function getProductImage(images: any): string {
  * @returns { valid: boolean; error?: string }
  */
 
+
 export function validateImageFile(file: File): {
   valid: boolean;
   error?: string;
@@ -122,3 +123,27 @@ export function validateImageFile(file: File): {
 
   return { valid: true };
 }
+
+/**
+ * Format a date as a relative time string in Indonesian
+ * @param date Date
+ * @returns string (e.g. "3 bulan yang lalu")
+ */
+export function formatDistanceToNow(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+
+  if (diffSecs < 60) return 'Baru saja';
+  if (diffMins < 60) return `${diffMins} menit yang lalu`;
+  if (diffHours < 24) return `${diffHours} jam yang lalu`;
+  if (diffDays < 30) return `${diffDays} hari yang lalu`;
+  if (diffMonths < 12) return `${diffMonths} bulan yang lalu`;
+  return `${diffYears} tahun yang lalu`;
+}
+
