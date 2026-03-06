@@ -53,52 +53,50 @@ export default async function AdminDashboard() {
       card3: { title: 'Total Transaksi', value: totalRevenue, icon: null },
     };
   } else {
+    // Cari store_id sekali saja dan pakai untuk stats + recent orders di bawah
     let storeId = profile?.store_id;
-    
+
     if (!storeId) {
-        const { data: store } = await supabase
+      const { data: store } = await supabase
         .from('stores')
         .select('id')
         .eq('owner_id', user.id)
         .single();
-        storeId = store?.id;
+      storeId = store?.id;
     }
 
     if (storeId) {
-      const { count: totalProducts } = await supabase
-        .from('products')
-        .select('id', { count: 'exact', head: true })
-        .eq('is_active', true)
-        .eq('store_id', storeId);
-
-      const { count: totalOrders } = await supabase
-        .from('orders')
-        .select('id', { count: 'exact', head: true })
-        .eq('store_id', storeId);
-
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('total_amount')
-        .eq('store_id', storeId)
-        .in('status', ['paid', 'in_weaving', 'ready_for_pickup', 'completed']);
+      const [{ count: totalProducts }, { count: totalOrders }, { data: orders }] =
+        await Promise.all([
+          supabase
+            .from('products')
+            .select('id', { count: 'exact', head: true })
+            .eq('is_active', true)
+            .eq('store_id', storeId),
+          supabase
+            .from('orders')
+            .select('id', { count: 'exact', head: true })
+            .eq('store_id', storeId),
+          supabase
+            .from('orders')
+            .select('total_amount')
+            .eq('store_id', storeId)
+            .in('status', ['paid', 'in_weaving', 'ready_for_pickup', 'completed']),
+        ]);
 
       const totalRevenue =
         orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
 
       stats = {
-        card1: {
-          title: 'Total Produk',
-          value: totalProducts || 0,
-          icon: Package,
-        },
-        card2: {
-          title: 'Total Pesanan',
-          value: totalOrders || 0,
-          icon: ShoppingBag,
-        },
+        card1: { title: 'Total Produk', value: totalProducts || 0, icon: Package },
+        card2: { title: 'Total Pesanan', value: totalOrders || 0, icon: ShoppingBag },
         card3: { title: 'Pendapatan Toko', value: totalRevenue, icon: null },
       };
     }
+
+    // Simpan storeId ke variabel yang bisa dipakai untuk recent orders query di bawah
+    // @ts-ignore — intentionally shadowing for reuse
+    profile._resolvedStoreId = storeId;
   }
 
   let recentOrdersQuery = supabase
@@ -108,19 +106,13 @@ export default async function AdminDashboard() {
     .limit(5);
 
   if (!isSuperAdmin) {
-    let storeId = profile?.store_id;
+    // Gunakan store_id yang sudah di-resolve sebelumnya
+    const resolvedStoreId =
+      (profile as any)._resolvedStoreId ??
+      profile?.store_id;
 
-    if (!storeId) {
-        const { data: store } = await supabase
-        .from('stores')
-        .select('id')
-        .eq('owner_id', user.id)
-        .single();
-        storeId = store?.id;
-    }
-
-    if (storeId) {
-      recentOrdersQuery = recentOrdersQuery.eq('store_id', storeId);
+    if (resolvedStoreId) {
+      recentOrdersQuery = recentOrdersQuery.eq('store_id', resolvedStoreId);
     } else {
       recentOrdersQuery = recentOrdersQuery.eq(
         'id',

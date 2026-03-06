@@ -6,6 +6,26 @@ import ProductGrid from '@/components/product/product-grid';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import FadeIn from '@/components/animations/fade-in';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Songket.id | Warisan Budaya Digital — Songket Silungkang',
+  description:
+    'Temukan keindahan kain Songket Silungkang asli. Belanja langsung dari pengrajin, kenali motif dengan AI Smart Lens, dan dukung warisan budaya Sumatera Barat.',
+  keywords: [
+    'songket silungkang',
+    'kain songket',
+    'batik sumatera barat',
+    'kerajinan tradisional',
+    'beli songket online',
+  ],
+  openGraph: {
+    title: 'Songket.id | Warisan Budaya Digital',
+    description:
+      'Belanja kain Songket Silungkang asli langsung dari pengrajin. Didukung AI untuk identifikasi motif.',
+    type: 'website',
+  },
+};
 
 export default async function HomePage() {
   const featuredProducts = await getFeaturedProducts(4);
