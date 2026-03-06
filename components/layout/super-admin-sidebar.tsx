@@ -14,6 +14,7 @@ import {
   Activity,
   BookOpen,
   ClipboardList,
+  Users,
 } from 'lucide-react';
 import { logoutAction } from '@/lib/actions/auth';
 import { useState, useTransition } from 'react';
@@ -45,6 +46,11 @@ export default function SuperAdminSidebar({ pendingRequestCount = 0 }: SuperAdmi
       title: 'Kelola Toko',
       href: '/super-admin/stores',
       icon: Store,
+    },
+    {
+      title: 'Kelola Users',
+      href: '/super-admin/users',
+      icon: Users,
     },
     {
       title: 'Request Toko',
