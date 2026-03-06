@@ -20,7 +20,7 @@ const roleConfig: Record<string, { label: string; variant: 'default' | 'secondar
 export default async function SuperAdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; role?: string }>;
+  searchParams: Promise<{ q?: string; role?: string; page?: string }>;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,7 +37,9 @@ export default async function SuperAdminUsersPage({
     redirect('/dashboard');
   }
 
-  const { q, role } = await searchParams;
+  const { q, role, page = '1' } = await searchParams;
+  const currentPage = Math.max(1, parseInt(page as string) || 1);
+  const ITEMS_PER_PAGE = 15;
 
   // Ambil semua profiles + join ke stores sebagai owner (untuk role admin)
   let query = supabase
@@ -49,7 +51,7 @@ export default async function SuperAdminUsersPage({
       role,
       created_at,
       stores_as_owner:stores!stores_owner_id_fkey(id, name, slug)
-    `)
+    `, { count: 'exact' })
     .order('created_at', { ascending: false });
 
   if (role && role !== 'all') {
@@ -60,7 +62,11 @@ export default async function SuperAdminUsersPage({
     query = query.ilike('full_name', `%${q}%`);
   }
 
-  const { data: users } = await query;
+  const from = (currentPage - 1) * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
+  query = query.range(from, to);
+
+  const { data: users, count: totalUsersCount } = await query;
 
   // Untuk artisan, cari toko yang mereka terdaftar sebagai staff via stores.owner_id atau artisan join
   // Berdasarkan codebase: artisan punya store_id di profiles (dipakai di store.ts baris 174)
@@ -121,7 +127,7 @@ export default async function SuperAdminUsersPage({
             </p>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-foreground">{users?.length ?? 0}</p>
+            <p className="text-3xl font-bold text-foreground">{totalUsersCount ?? 0}</p>
             <p className="text-sm text-muted-foreground">Total Pengguna</p>
           </div>
         </div>
@@ -290,10 +296,49 @@ export default async function SuperAdminUsersPage({
             </table>
           </div>
           {users && users.length > 0 && (
-            <div className="px-6 py-4 border-t border-border/50 text-sm text-muted-foreground">
-              Menampilkan {users.length} pengguna
-              {q && ` untuk pencarian "${q}"`}
-              {role && role !== 'all' && ` dengan role ${roleConfig[role]?.label ?? role}`}
+            <div className="px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-border/50 text-sm text-muted-foreground">
+              <div>
+                Menampilkan <span className="font-medium text-foreground">{from + 1}</span> - <span className="font-medium text-foreground">{Math.min(to + 1, totalUsersCount || 0)}</span> dari <span className="font-medium text-foreground">{totalUsersCount}</span> pengguna
+                {q && ` untuk pencarian "${q}"`}
+                {role && role !== 'all' && ` dengan role ${roleConfig[role as string]?.label ?? role}`}
+              </div>
+              
+              {/* Pagination Controls */}
+              {totalUsersCount && totalUsersCount > ITEMS_PER_PAGE && (
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`/super-admin/users?${new URLSearchParams({
+                      ...(q ? { q: q as string } : {}),
+                      ...(role ? { role: role as string } : {}),
+                      page: (currentPage - 1).toString(),
+                    }).toString()}`}
+                    className={`px-3 py-1.5 border border-border/50 rounded-lg text-sm bg-background font-medium shadow-sm ${
+                      currentPage <= 1 
+                        ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+                        : 'hover:bg-muted hover:text-foreground transition-colors'
+                    }`}
+                  >
+                    Sebelumnya
+                  </a>
+                  <span className="font-medium text-foreground mx-2 text-xs">
+                    Halaman {currentPage} dari {Math.ceil(totalUsersCount / ITEMS_PER_PAGE)}
+                  </span>
+                  <a
+                    href={`/super-admin/users?${new URLSearchParams({
+                      ...(q ? { q: q as string } : {}),
+                      ...(role ? { role: role as string } : {}),
+                      page: (currentPage + 1).toString(),
+                    }).toString()}`}
+                    className={`px-3 py-1.5 border border-border/50 rounded-lg text-sm bg-background font-medium shadow-sm ${
+                      currentPage >= Math.ceil(totalUsersCount / ITEMS_PER_PAGE) 
+                        ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+                        : 'hover:bg-muted hover:text-foreground transition-colors'
+                    }`}
+                  >
+                    Selanjutnya
+                  </a>
+                </div>
+              )}
             </div>
           )}
         </div>

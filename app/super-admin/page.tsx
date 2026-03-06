@@ -33,7 +33,7 @@ export default async function SuperAdminPage() {
   const analytics = await getSuperAdminAnalytics();
   const { data: stores } = await supabase
     .from('stores')
-    .select('*, profiles(full_name, email:id)')
+    .select('*, profiles!stores_owner_id_fkey(full_name, email:id)')
     .order('created_at', { ascending: false })
     .limit(5);
 
