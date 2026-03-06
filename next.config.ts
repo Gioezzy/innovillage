@@ -10,8 +10,15 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
-    unoptimized: true, 
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 3600,
   },
   experimental: {
     serverActions: {
