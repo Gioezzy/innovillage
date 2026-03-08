@@ -13,6 +13,7 @@ export default function SmartLensPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+  const [scanTimeMs, setScanTimeMs] = useState<number | null>(null);
 
   // Wake up AI service on mount (Client-Side fetch to bypass Node.js issues)
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function SmartLensPage() {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
+      setScanTimeMs(null);
     }
   };
 
@@ -49,6 +51,7 @@ export default function SmartLensPage() {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
+      setScanTimeMs(null);
     }
   };
 
@@ -56,14 +59,19 @@ export default function SmartLensPage() {
     if (!selectedFile) return;
 
     setIsScanning(true);
+    setScanTimeMs(null);
     const formData = new FormData();
     formData.append('file', selectedFile);
 
+    const startTime = performance.now();
+
     try {
       const response = await scanSongket(formData);
+      const endTime = performance.now();
       
       if (response.success && response.data) {
         setResult(response.data);
+        setScanTimeMs(endTime - startTime);
         toast.success("Motif berhasil dikenali!");
       } else {
         toast.error(response.message || "Gagal mengenali motif");
@@ -175,8 +183,15 @@ export default function SmartLensPage() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-2xl text-indigo-950">{result.motifName}</CardTitle>
-                        <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                            <span>{(result.confidence * 100).toFixed(1)}% Akurasi</span>
+                        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                            {scanTimeMs !== null && (
+                              <div className="flex items-center gap-1 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <span>⚡ {(scanTimeMs / 1000).toFixed(2)}s</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <span>{(result.confidence * 100).toFixed(1)}% Akurasi</span>
+                            </div>
                         </div>
                     </div>
                 </CardHeader>
