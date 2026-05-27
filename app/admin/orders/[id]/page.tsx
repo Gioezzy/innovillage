@@ -211,10 +211,24 @@ export default async function AdminOrderDetailPage({
               <h3 className="text-lg font-bold font-heading mb-4 border-b border-border/50 pb-4">
                 Update Status
               </h3>
+              
+              {/* Display marketplace platform for marketplace orders */}
+              {order.marketplace_platform && (
+                <div className="mb-4 p-3 bg-primary/10 rounded-lg">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                    Platform Marketplace
+                  </p>
+                  <p className="font-bold text-primary capitalize">
+                    {order.marketplace_platform}
+                  </p>
+                </div>
+              )}
+              
               <OrderStatusUpdateForm
                 order={{
                   id: order.id,
                   status: order.status ?? 'pending',
+                  marketplace_platform: order.marketplace_platform,
                 }}
               />
             </div>
@@ -341,7 +355,12 @@ export default async function AdminOrderDetailPage({
 }
 
 function OrderTimeLine({ status }: { status: string }) {
-  const steps = [
+  // Determine if this is a marketplace order
+  const isMarketplaceOrder = status === 'marketplace_redirect' || 
+    ['confirmed', 'in_weaving', 'quality_check'].includes(status);
+
+  // Define steps based on order type
+  const regularSteps = [
     { key: 'pending_payment', label: 'Menunggu Pembayaran' },
     { key: 'paid', label: 'Dibayar' },
     { key: 'in_production', label: 'Sedang Dikerjakan' },
@@ -349,6 +368,16 @@ function OrderTimeLine({ status }: { status: string }) {
     { key: 'completed', label: 'Selesai' },
   ];
 
+  const marketplaceSteps = [
+    { key: 'marketplace_redirect', label: 'Redirect Marketplace' },
+    { key: 'confirmed', label: 'Dikonfirmasi' },
+    { key: 'in_weaving', label: 'Sedang Ditenun' },
+    { key: 'quality_check', label: 'Pengecekan Kualitas' },
+    { key: 'ready_for_pickup', label: 'Siap Diambil' },
+    { key: 'completed', label: 'Selesai' },
+  ];
+
+  const steps = isMarketplaceOrder ? marketplaceSteps : regularSteps;
   const statusIndex = steps.findIndex(s => s.key === status);
   const isCancelled = status === 'cancelled';
 
