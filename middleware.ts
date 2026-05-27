@@ -48,6 +48,7 @@ export async function middleware(request: NextRequest) {
   ];
 
   const adminPaths = ['/admin'];
+  const superAdminPaths = ['/super-admin'];
 
   const path = request.nextUrl.pathname;
 
@@ -59,9 +60,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (adminPaths.some(p => path.startsWith(p))) {
+  const isAdminPath = adminPaths.some(p => path.startsWith(p));
+  const isSuperAdminPath = superAdminPaths.some(p => path.startsWith(p));
+
+  if (isAdminPath || isSuperAdminPath) {
     if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const redirectUrl = new URL('/login', request.url);
+      if (isSuperAdminPath) {
+          redirectUrl.searchParams.set('redirect', path);
+      }
+      return NextResponse.redirect(redirectUrl);
     }
 
     const { data: profile } = await supabase
@@ -70,8 +78,16 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    if (!profile || !['admin', 'super_admin', 'artisan'].includes(profile.role)) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+    if (isSuperAdminPath) {
+      if (!profile || profile.role !== 'super_admin') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+    }
+
+    if (isAdminPath) {
+      if (!profile || !['admin', 'super_admin', 'artisan'].includes(profile.role)) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
     }
   }
 
