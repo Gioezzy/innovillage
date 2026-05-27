@@ -1,7 +1,7 @@
 # Innovillage Platform
 
 <div align="center">
-  <img src="https://res.cloudinary.com/dyfi4bwkp/image/upload/v1763913339/Screenshot_from_2025-11-23_22-54-11_ctyaey.png" alt="Innovillage Logo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+  <img src="https://res.cloudinary.com/dyfi4bwkp/image/upload/v1779622391/Screenshot_from_2026-05-24_18-31-40_oybwzo.png" alt="Innovillage Logo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
 </div>
 
 <br />
