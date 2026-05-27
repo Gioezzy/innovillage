@@ -234,8 +234,14 @@ export type Database = {
           created_at: string | null
           delivery_method: string | null
           id: string
+          marketplace_platform: string | null
+          net_amount: number | null
           note: string | null
           order_number: string
+          platform_fee: number | null
+          province: string | null
+          shipping_address: string | null
+          shipping_cost: number | null
           status: Database["public"]["Enums"]["order_status"] | null
           store_id: string | null
           total_amount: number
@@ -246,8 +252,14 @@ export type Database = {
           created_at?: string | null
           delivery_method?: string | null
           id?: string
+          marketplace_platform?: string | null
+          net_amount?: number | null
           note?: string | null
           order_number: string
+          platform_fee?: number | null
+          province?: string | null
+          shipping_address?: string | null
+          shipping_cost?: number | null
           status?: Database["public"]["Enums"]["order_status"] | null
           store_id?: string | null
           total_amount: number
@@ -258,8 +270,14 @@ export type Database = {
           created_at?: string | null
           delivery_method?: string | null
           id?: string
+          marketplace_platform?: string | null
+          net_amount?: number | null
           note?: string | null
           order_number?: string
+          platform_fee?: number | null
+          province?: string | null
+          shipping_address?: string | null
+          shipping_cost?: number | null
           status?: Database["public"]["Enums"]["order_status"] | null
           store_id?: string | null
           total_amount?: number
@@ -289,7 +307,10 @@ export type Database = {
           created_at: string | null
           id: string
           method: string | null
+          midtrans_order_id: string | null
+          midtrans_token: string | null
           order_id: string | null
+          payment_type: string | null
           raw_response: Json | null
           status: Database["public"]["Enums"]["payment_status"] | null
           updated_at: string | null
@@ -299,7 +320,10 @@ export type Database = {
           created_at?: string | null
           id?: string
           method?: string | null
+          midtrans_order_id?: string | null
+          midtrans_token?: string | null
           order_id?: string | null
+          payment_type?: string | null
           raw_response?: Json | null
           status?: Database["public"]["Enums"]["payment_status"] | null
           updated_at?: string | null
@@ -309,7 +333,10 @@ export type Database = {
           created_at?: string | null
           id?: string
           method?: string | null
+          midtrans_order_id?: string | null
+          midtrans_token?: string | null
           order_id?: string | null
+          payment_type?: string | null
           raw_response?: Json | null
           status?: Database["public"]["Enums"]["payment_status"] | null
           updated_at?: string | null
@@ -338,16 +365,16 @@ export type Database = {
           material: string | null
           motif_id: string | null
           name: string
+          padiumkm_url: string | null
           price: number
+          shopee_url: string | null
           size: string | null
           slug: string | null
           stock_quantity: number | null
           store_id: string | null
+          tokopedia_url: string | null
           updated_at: string | null
           weaving_time_days: number | null
-          shopee_url: string | null
-          tokopedia_url: string | null
-          padiumkm_url: string | null
         }
         Insert: {
           category_id?: string | null
@@ -362,16 +389,16 @@ export type Database = {
           material?: string | null
           motif_id?: string | null
           name: string
+          padiumkm_url?: string | null
           price: number
+          shopee_url?: string | null
           size?: string | null
           slug?: string | null
           stock_quantity?: number | null
           store_id?: string | null
+          tokopedia_url?: string | null
           updated_at?: string | null
           weaving_time_days?: number | null
-          shopee_url?: string | null
-          tokopedia_url?: string | null
-          padiumkm_url?: string | null
         }
         Update: {
           category_id?: string | null
@@ -386,16 +413,16 @@ export type Database = {
           material?: string | null
           motif_id?: string | null
           name?: string
+          padiumkm_url?: string | null
           price?: number
+          shopee_url?: string | null
           size?: string | null
           slug?: string | null
           stock_quantity?: number | null
           store_id?: string | null
+          tokopedia_url?: string | null
           updated_at?: string | null
           weaving_time_days?: number | null
-          shopee_url?: string | null
-          tokopedia_url?: string | null
-          padiumkm_url?: string | null
         }
         Relationships: [
           {
@@ -438,6 +465,7 @@ export type Database = {
           id: string
           phone: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          store_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -449,6 +477,7 @@ export type Database = {
           id: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          store_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -460,12 +489,78 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          store_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_requests: {
+        Row: {
+          created_at: string
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          store_description: string | null
+          store_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_description?: string | null
+          store_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_description?: string | null
+          store_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stores: {
         Row: {
+          account_holder: string | null
+          account_number: string | null
+          bank_name: string | null
           banner_url: string | null
           created_at: string | null
           description: string | null
@@ -479,6 +574,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_name?: string | null
           banner_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -492,6 +590,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_name?: string | null
           banner_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -514,6 +615,74 @@ export type Database = {
           },
         ]
       }
+      website_traffic: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string | null
+          path: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          path: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          path?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          bank_info: Json
+          created_at: string
+          id: string
+          proof_url: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          bank_info: Json
+          created_at?: string
+          id?: string
+          proof_url?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          bank_info?: Json
+          created_at?: string
+          id?: string
+          proof_url?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -523,6 +692,8 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      is_store_owner_of: { Args: { target_store_id: string }; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       motif_image_status: "pending" | "verified" | "rejected"
@@ -534,8 +705,11 @@ export type Database = {
         | "ready_for_pickup"
         | "completed"
         | "cancelled"
+        | "marketplace_redirect"
+        | "confirmed"
       payment_status: "pending" | "success" | "failed" | "refunded"
       user_role: "admin" | "artisan" | "customer" | "super_admin"
+      withdrawal_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -672,9 +846,12 @@ export const Constants = {
         "ready_for_pickup",
         "completed",
         "cancelled",
+        "marketplace_redirect",
+        "confirmed",
       ],
       payment_status: ["pending", "success", "failed", "refunded"],
       user_role: ["admin", "artisan", "customer", "super_admin"],
+      withdrawal_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
