@@ -12,6 +12,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import ProductionTimeline from '@/components/product/production-timeline';
+import { getCheckoutConfig } from '@/lib/config/checkout-config';
+import { getAvailableMarketplaces } from '@/lib/validators/marketplace-url';
 
 interface ProductPageProps {
   params: {
@@ -49,6 +51,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const motif = (product as any).motif;
   const artisan = (product as any).profile;
+  
+  // Get checkout configuration and available marketplaces
+  const checkoutConfig = getCheckoutConfig();
+  const availableMarketplaces = getAvailableMarketplaces(product);
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,36 +133,69 @@ export default async function ProductPage({ params }: ProductPageProps) {
               
               <div className="p-6 bg-card border border-border rounded-xl shadow-sm space-y-4">
                 <div className="space-y-3">
-                  <AddToCartButton product={product} />
+                  {/* Conditionally render Add to Cart button only when direct checkout is enabled */}
+                  {checkoutConfig.midtransEnabled && (
+                    <AddToCartButton product={product} />
+                  )}
                   
-                  {(product.shopee_url || product.tokopedia_url || product.padiumkm_url) && (
-                    <div className="pt-4 border-t border-border mt-2">
-                       <p className="text-sm font-medium mb-3">
-                         Dapat dibeli di marketplace:
-                       </p>
-                       <div className="flex gap-2 flex-wrap">
-                         {product.shopee_url && (
-                           <Link href={product.shopee_url} target="_blank" rel="noopener noreferrer">
+                  {/* Conditionally render marketplace links section when marketplace checkout is enabled */}
+                  {checkoutConfig.marketplaceEnabled && (
+                    <div className={checkoutConfig.midtransEnabled ? "pt-4 border-t border-border mt-2" : ""}>
+                      <p className="text-sm font-medium mb-3">
+                        {availableMarketplaces.length > 0 ? 'Dapat dibeli di marketplace:' : 'Informasi Pembelian'}
+                      </p>
+                      
+                      {availableMarketplaces.length > 0 ? (
+                        <div className="flex gap-2 flex-wrap">
+                          {/* Display Shopee link with icon if product has valid Shopee URL */}
+                          {availableMarketplaces.includes('shopee') && product.shopee_url && (
+                            <Link href={product.shopee_url} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="icon" title="Shopee" className="w-10 h-10 border-orange-200 hover:bg-orange-50 hover:text-orange-600 text-orange-600 rounded-full">
                                 <span className="font-bold text-xs">Shopee</span>
                               </Button>
-                           </Link>
-                         )}
-                         {product.tokopedia_url && (
-                           <Link href={product.tokopedia_url} target="_blank" rel="noopener noreferrer">
+                            </Link>
+                          )}
+                          
+                          {/* Display Tokopedia link with icon if product has valid Tokopedia URL */}
+                          {availableMarketplaces.includes('tokopedia') && product.tokopedia_url && (
+                            <Link href={product.tokopedia_url} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="icon" title="Tokopedia" className="w-10 h-10 border-green-200 hover:bg-green-50 hover:text-green-600 text-green-600 rounded-full">
                                 <span className="font-bold text-xs">Tokped</span>
                               </Button>
-                           </Link>
-                         )}
-                         {product.padiumkm_url && (
-                           <Link href={product.padiumkm_url} target="_blank" rel="noopener noreferrer">
+                            </Link>
+                          )}
+                          
+                          {availableMarketplaces.includes('padiumkm') && product.padiumkm_url && (
+                            <Link href={product.padiumkm_url} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="icon" title="PadiUMKM" className="w-10 h-10 border-blue-200 hover:bg-blue-50 hover:text-blue-600 text-blue-600 rounded-full">
                                 <span className="font-bold text-xs">Padi</span>
                               </Button>
-                           </Link>
-                         )}
-                       </div>
+                            </Link>
+                          )}
+                        </div>
+                      ) : (
+                        /* Display contact information message when no marketplace URLs are configured */
+                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800 mb-2">
+                            Produk ini tidak tersedia untuk pembelian online. Silakan hubungi toko secara langsung untuk informasi pembelian.
+                          </p>
+                          {/* Include store phone and email in contact message */}
+                          {product.store && (
+                            <div className="mt-2 space-y-1">
+                              {product.store.phone && (
+                                <p className="text-sm font-medium text-yellow-900">
+                                  Telepon: {product.store.phone}
+                                </p>
+                              )}
+                              {product.store.email && (
+                                <p className="text-sm font-medium text-yellow-900">
+                                  Email: {product.store.email}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 
