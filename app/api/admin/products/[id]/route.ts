@@ -1,6 +1,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { sanitizeMarketplaceUrl } from "@/lib/utils/sanitize";
 
 export async function PUT(
   request: Request,
@@ -27,11 +28,32 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { ...updateData} = body
+    const { shopee_url, tokopedia_url, padiumkm_url, ...updateData} = body
+
+    // Sanitize marketplace URLs before storage
+    const sanitizedShopeeUrl = shopee_url ? sanitizeMarketplaceUrl(shopee_url, 'shopee') : null
+    const sanitizedTokopediaUrl = tokopedia_url ? sanitizeMarketplaceUrl(tokopedia_url, 'tokopedia') : null
+    const sanitizedPadiumkmUrl = padiumkm_url ? sanitizeMarketplaceUrl(padiumkm_url, 'padiumkm') : null
+
+    // Validate that sanitized URLs are not empty if original URLs were provided
+    if (shopee_url && !sanitizedShopeeUrl) {
+      return NextResponse.json({ error: 'Invalid Shopee URL format'}, { status: 400})
+    }
+    if (tokopedia_url && !sanitizedTokopediaUrl) {
+      return NextResponse.json({ error: 'Invalid Tokopedia URL format'}, { status: 400})
+    }
+    if (padiumkm_url && !sanitizedPadiumkmUrl) {
+      return NextResponse.json({ error: 'Invalid PadiUMKM URL format'}, { status: 400})
+    }
 
     const { data: product, error: updateError } = await supabase
       .from('products')
-      .update(updateData)
+      .update({
+        ...updateData,
+        shopee_url: sanitizedShopeeUrl,
+        tokopedia_url: sanitizedTokopediaUrl,
+        padiumkm_url: sanitizedPadiumkmUrl,
+      })
       .eq('id', id)
       .select()
       .single()

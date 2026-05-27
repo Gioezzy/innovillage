@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Product } from '@/lib/types';
+import { validateShopeeUrl, validateTokopediaUrl } from '@/lib/validators/marketplace-url';
 
 interface Category {
   id: string;
@@ -69,6 +70,10 @@ export default function ProductEditForm({
   );
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
+  const [urlErrors, setUrlErrors] = useState<{
+    shopee?: string;
+    tokopedia?: string;
+  }>({});
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -109,6 +114,45 @@ export default function ProductEditForm({
     setNewImagePreviews(newImagePreviews.filter((_, i) => i !== index));
   };
 
+  const validateMarketplaceUrls = () => {
+    const errors: { shopee?: string; tokopedia?: string } = {};
+
+    // Validate Shopee URL
+    if (formData.shopee_url && formData.shopee_url.trim() !== '') {
+      const shopeeValidation = validateShopeeUrl(formData.shopee_url);
+      if (!shopeeValidation.isValid) {
+        errors.shopee = shopeeValidation.error;
+      }
+    }
+
+    // Validate Tokopedia URL
+    if (formData.tokopedia_url && formData.tokopedia_url.trim() !== '') {
+      const tokopediaValidation = validateTokopediaUrl(formData.tokopedia_url);
+      if (!tokopediaValidation.isValid) {
+        errors.tokopedia = tokopediaValidation.error;
+      }
+    }
+
+    setUrlErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleShopeeUrlChange = (value: string) => {
+    setFormData({ ...formData, shopee_url: value });
+    // Clear error when user starts typing
+    if (urlErrors.shopee) {
+      setUrlErrors({ ...urlErrors, shopee: undefined });
+    }
+  };
+
+  const handleTokopediaUrlChange = (value: string) => {
+    setFormData({ ...formData, tokopedia_url: value });
+    // Clear error when user starts typing
+    if (urlErrors.tokopedia) {
+      setUrlErrors({ ...urlErrors, tokopedia: undefined });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -120,6 +164,12 @@ export default function ProductEditForm({
     const totalImages = existingImages.length + newImages.length;
     if (totalImages === 0) {
       toast.error('Mohon upload minimal 1 gambar produk');
+      return;
+    }
+
+    // Validate marketplace URLs
+    if (!validateMarketplaceUrls()) {
+      toast.error('Mohon perbaiki kesalahan validasi URL marketplace');
       return;
     }
 
@@ -452,27 +502,41 @@ export default function ProductEditForm({
             <Label htmlFor="shopee_url">Link Shopee</Label>
             <Input
               id="shopee_url"
+              type="url"
               value={formData.shopee_url}
-              onChange={e =>
-                setFormData({ ...formData, shopee_url: e.target.value })
-              }
-              placeholder="https://shopee.co.id/..."
+              onChange={e => handleShopeeUrlChange(e.target.value)}
+              onBlur={validateMarketplaceUrls}
+              placeholder="https://shopee.co.id/product-name.i.123456789.987654321"
               disabled={isPending}
-              className="rounded-xl"
+              maxLength={2048}
+              className={`rounded-xl ${urlErrors.shopee ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
             />
+            {urlErrors.shopee && (
+              <p className="text-sm text-red-600 mt-1">{urlErrors.shopee}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Format: https://shopee.co.id/...
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="tokopedia_url">Link Tokopedia</Label>
             <Input
               id="tokopedia_url"
+              type="url"
               value={formData.tokopedia_url}
-              onChange={e =>
-                setFormData({ ...formData, tokopedia_url: e.target.value })
-              }
-              placeholder="https://www.tokopedia.com/..."
+              onChange={e => handleTokopediaUrlChange(e.target.value)}
+              onBlur={validateMarketplaceUrls}
+              placeholder="https://www.tokopedia.com/store-name/product-name"
               disabled={isPending}
-              className="rounded-xl"
+              maxLength={2048}
+              className={`rounded-xl ${urlErrors.tokopedia ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
             />
+            {urlErrors.tokopedia && (
+              <p className="text-sm text-red-600 mt-1">{urlErrors.tokopedia}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Format: https://www.tokopedia.com/...
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="padiumkm_url">Link PadiUMKM</Label>
@@ -484,6 +548,7 @@ export default function ProductEditForm({
               }
               placeholder="https://padiumkm.id/..."
               disabled={isPending}
+              maxLength={2048}
               className="rounded-xl"
             />
           </div>
