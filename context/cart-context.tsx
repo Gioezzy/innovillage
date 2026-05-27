@@ -6,18 +6,28 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
+  useMemo,
 } from 'react';
-import { CartItem } from '@/lib/types';
+import { CartItemWithMarketplace, MarketplacePlatform } from '@/lib/types';
 import isEqual from 'lodash.isequal';
 
 interface CartContentType {
-  items: CartItem[];
-  addItem: (item: Omit<CartItem, 'id'>) => void;
+  items: CartItemWithMarketplace[];
+  addItem: (item: Omit<CartItemWithMarketplace, 'id'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  
+  // New methods for marketplace checkout
+  getItemsByStore: () => Map<string, CartItemWithMarketplace[]>;
+  validateMarketplaceCheckout: (platform: MarketplacePlatform) => {
+    valid: boolean;
+    missingUrls: string[];
+  };
+  hasMultipleStores: () => boolean;
 }
 
 const CartContent = createContext<CartContentType | undefined>(undefined);
@@ -25,7 +35,7 @@ const CartContent = createContext<CartContentType | undefined>(undefined);
 const CART_STORAGE_KEY = 'shopping_cart';
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItemWithMarketplace[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -46,7 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, mounted]);
 
-  const addItem = (item: Omit<CartItem, 'id'>) => {
+  const addItem = (item: Omit<CartItemWithMarketplace, 'id'>) => {
     setItems(prev => {
       const existingItemIndex = prev.findIndex(
         i =>
@@ -89,6 +99,78 @@ export function CartProvider({ children }: { children: ReactNode }) {
     0
   );
 
+  /**
+   * Groups cart items by store ID
+   * Returns a Map where keys are store IDs and values are arrays of items from that store
+   * **Validates: Requirements 5.1**
+   */
+  const getItemsByStore = useCallback((): Map<string, CartItemWithMarketplace[]> => {
+    const grouped = new Map<string, CartItemWithMarketplace[]>();
+    
+    items.forEach(item => {
+      const storeId = item.storeId || 'unknown';
+      if (!grouped.has(storeId)) {
+        grouped.set(storeId, []);
+      }
+      grouped.get(storeId)!.push(item);
+    });
+    
+    return grouped;
+  }, [items]);
+
+  /**
+   * Validates if all cart items have marketplace URLs for the selected platform
+   * Returns validation result with list of products missing URLs
+   * **Validates: Requirements 9.3, 9.4, 9.5**
+   */
+  const validateMarketplaceCheckout = useCallback((platform: MarketplacePlatform): {
+    valid: boolean;
+    missingUrls: string[];
+  } => {
+    const missingUrls: string[] = [];
+    
+    items.forEach(item => {
+      let hasUrl = false;
+      
+      switch (platform) {
+        case 'shopee':
+          hasUrl = !!(item.shopeeUrl && item.shopeeUrl.trim() !== '');
+          break;
+        case 'tokopedia':
+          hasUrl = !!(item.tokopediaUrl && item.tokopediaUrl.trim() !== '');
+          break;
+        case 'padiumkm':
+          hasUrl = !!(item.padiumkmUrl && item.padiumkmUrl.trim() !== '');
+          break;
+      }
+      
+      if (!hasUrl) {
+        missingUrls.push(item.productName);
+      }
+    });
+    
+    return {
+      valid: missingUrls.length === 0,
+      missingUrls
+    };
+  }, [items]);
+
+  /**
+   * Checks if cart contains items from multiple stores
+   * Returns true if items belong to 2 or more different stores
+   * **Validates: Requirements 5.4**
+   */
+  const hasMultipleStores = useCallback((): boolean => {
+    const storeIds = new Set<string>();
+    
+    items.forEach(item => {
+      const storeId = item.storeId || 'unknown';
+      storeIds.add(storeId);
+    });
+    
+    return storeIds.size > 1;
+  }, [items]);
+
   return (
     <CartContent.Provider
       value={{
@@ -99,6 +181,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        getItemsByStore,
+        validateMarketplaceCheckout,
+        hasMultipleStores,
       }}
     >
       {children}
