@@ -49,8 +49,6 @@ export interface AdminOrderItem extends TypedOrderItem {
 }
 
 export interface OrderWithDetails extends Order {
-  shipping_address?: string | null;
-  shipping_cost?: number | null;
   profiles: {
     full_name: string | null;
     phone: string | null;
@@ -60,14 +58,14 @@ export interface OrderWithDetails extends Order {
   order_items: (TypedOrderItem & {
     products: ProductWithTypedImages | null;
   })[];
-  
-  pickup_date?: string | null;
-  pickup_method?: string | null;
-
 
   payment: TypedPayment[] | null;
   
   stores?: Store | null;
+  
+  // Legacy fields for backward compatibility (if needed by existing code)
+  pickup_date?: string | null;
+  pickup_method?: string | null;
 }
 
 export interface CartItem {
@@ -99,4 +97,94 @@ export interface Notification {
   is_read?: string;
   related_id?: string;
   created_at: string;
+}
+
+// ============================================================================
+// Marketplace Checkout Types
+// ============================================================================
+
+/**
+ * Marketplace platform types
+ */
+export type MarketplacePlatform = 'shopee' | 'tokopedia' | 'padiumkm';
+
+/**
+ * Product with marketplace URLs (already included in Product type from database)
+ * This is an alias for clarity in marketplace-related code
+ */
+export type ProductWithMarketplace = Product;
+
+/**
+ * Order with marketplace fields (already included in Order type from database)
+ * This is an alias for clarity in marketplace-related code
+ */
+export type OrderWithMarketplace = Order;
+
+/**
+ * Cart item extended with marketplace URLs and store information
+ */
+export interface CartItemWithMarketplace extends CartItem {
+  shopeeUrl?: string | null;
+  tokopediaUrl?: string | null;
+  padiumkmUrl?: string | null;
+  storeName?: string;
+}
+
+/**
+ * Marketplace order data returned after successful checkout
+ */
+export interface MarketplaceOrderData {
+  orderId: string;
+  orderNumber: string;
+  platform: MarketplacePlatform;
+  redirectUrls: string[];
+  totalAmount: number;
+  shippingCost?: number;
+}
+
+/**
+ * Order with full details including marketplace fields
+ */
+export interface OrderWithMarketplaceDetails extends OrderWithDetails {
+  // Marketplace fields are already in Order type, no need to redeclare
+}
+
+/**
+ * Product with category and marketplace URLs
+ */
+export interface ProductWithCategoryAndMarketplace extends ProductWithCategory {
+  // Marketplace URL fields are already in Product type, no need to redeclare
+}
+
+/**
+ * Checkout method type for feature toggle
+ */
+export type CheckoutMethod = 'marketplace' | 'direct' | 'both';
+
+/**
+ * Delivery method type
+ */
+export type DeliveryMethod = 'in_store' | 'delivery';
+
+/**
+ * Marketplace checkout form data
+ */
+export interface MarketplaceCheckoutFormData {
+  phone: string;
+  deliveryMethod: DeliveryMethod;
+  address?: string;
+  province?: string;
+  note?: string;
+  marketplace: MarketplacePlatform;
+}
+
+/**
+ * Store grouped cart items for multi-store checkout
+ */
+export interface StoreGroupedCart {
+  storeId: string;
+  storeName: string;
+  items: CartItemWithMarketplace[];
+  subtotal: number;
+  availableMarketplaces: MarketplacePlatform[];
 }
