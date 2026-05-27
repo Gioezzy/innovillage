@@ -15,7 +15,8 @@ export default async function AnalyticsPage() {
   if (!analytics) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">Data analytics tidak tersedia</p>
+        <p className="text-red-600 font-semibold">Data analytics tidak tersedia</p>
+        <p className="text-gray-600 mt-2">Terjadi kesalahan saat mengambil data. Silakan coba lagi nanti.</p>
       </div>
     );
   }
@@ -133,6 +134,35 @@ export default async function AnalyticsPage() {
           </div>
         </FadeIn>
       </div>
+
+      <FadeIn delay={0.4}>
+        <div className="bg-card rounded-2xl border border-border/50 p-6 shadow-sm">
+          <h2 className="text-xl font-bold font-heading mb-6 flex items-center">
+            <DollarSign className="w-5 h-5 mr-3 text-primary" />
+            Metode Pembayaran
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Object.entries(analytics?.paymentMethodBreakdown || {}).map(
+              ([method, count]) => (
+                <div
+                  key={method}
+                  className="p-6 bg-muted/30 rounded-xl border border-border/50 flex flex-col justify-center items-center text-center hover:bg-muted/50 transition-colors"
+                >
+                  <p className="text-sm font-medium text-muted-foreground mb-2">
+                    {method}
+                  </p>
+                  <p className="text-4xl font-bold text-primary">
+                    {count as number}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    pesanan
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      </FadeIn>
     </div>
   );
 }

@@ -117,10 +117,22 @@ export const getAdminAnalytics = cache(async () => {
 
   const { data: orders } = await supabase
     .from('orders')
-    .select('status');
+    .select('status, marketplace_platform');
 
   const statusBreakdown = orders?.reduce<Record<string, number>>((acc, order) => {
     acc[order.status || 'unknown'] = (acc[order.status || 'unknown'] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Payment method breakdown
+  const paymentMethodBreakdown = orders?.reduce<Record<string, number>>((acc, order) => {
+    let paymentMethod = 'Midtrans'; // Default for orders without marketplace_platform
+    
+    if (order.marketplace_platform) {
+      paymentMethod = order.marketplace_platform;
+    }
+    
+    acc[paymentMethod] = (acc[paymentMethod] || 0) + 1;
     return acc;
   }, {});
 
@@ -144,6 +156,7 @@ export const getAdminAnalytics = cache(async () => {
     },
     topProducts,
     statusBreakdown,
+    paymentMethodBreakdown,
   };
 });
 
