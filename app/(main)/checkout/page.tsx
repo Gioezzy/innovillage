@@ -5,52 +5,38 @@ import { useState, useTransition, useEffect } from 'react';
 import { useCart } from '@/context/cart-context';
 import { useAuth } from '@/hooks/use-auth';
 import { createOrderAction } from '@/lib/actions/order';
-import { formatRupiah } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group';
-import { Separator } from '@/components/ui/separator';
+import { getCheckoutConfig } from '@/lib/config/checkout-config';
 import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
-import { Loader2, CircleCheck } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import FadeIn from '@/components/animations/fade-in';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { SHIPPING_RATES, PROVINCES } from '@/components/checkout/shipping-rates';
+import CheckoutMethodSelection from './components/CheckoutMethodSelection';
+import MarketplaceCheckoutFlow, { MarketplaceCheckoutData } from './components/MarketplaceCheckoutFlow';
+import DirectCheckoutFlow, { DirectCheckoutData } from './components/DirectCheckoutFlow';
 
+/**
+ * Main Checkout Page Component
+ * 
+ * Orchestrates the checkout flow based on the configured checkout method:
+ * - Shows method selection when both marketplace and direct checkout are enabled
+ * - Shows marketplace checkout flow when marketplace is selected/enabled
+ * - Shows direct checkout flow when direct is selected/enabled
+ * - Handles empty cart validation
+ * 
+ * **Validates: Requirements 2.1, 2.6, 9.2, 13.3, 13.4, 13.5**
+ */
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
   const { user, isLoading } = useAuth();
   const [isPending, startTransition] = useTransition();
 
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [pickupMethod, setPickupMethod] = useState<'in_store' | 'delivery'>(
-    'delivery'
-  );
-  const [selectedProvince, setSelectedProvince] = useState<string>('');
-  const [shippingCost, setShippingCost] = useState(0);
-  const [note, setNote] = useState('');
+  // Get checkout configuration to determine which flow to show
+  const checkoutConfig = getCheckoutConfig();
 
-  useEffect(() => {
-    if (pickupMethod === 'in_store') {
-      setShippingCost(0);
-    } else if (pickupMethod === 'delivery' && selectedProvince) {
-      setShippingCost(SHIPPING_RATES[selectedProvince] || 0);
-    } else {
-      setShippingCost(0);
-    }
-  }, [pickupMethod, selectedProvince]);
+  // Track selected checkout method (for 'both' mode)
+  const [selectedMethod, setSelectedMethod] = useState<'marketplace' | 'direct' | null>(null);
 
-  const finalTotal = totalPrice + shippingCost;
-
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -59,63 +45,171 @@ export default function CheckoutPage() {
     );
   }
 
+  // Authentication check
   if (!user) {
     redirect('/login?redirect=/checkout');
   }
 
+  // Empty cart validation - Requirement 2.6, 9.2
   if (items.length === 0) {
     redirect('/cart');
   }
 
-  const handleCheckout = async () => {
-    if (!phone) {
-      toast.error('Nomor telepon wajib diisi');
-      return;
-    }
+  /**
+   * Handle marketplace checkout submission
+   * Creates order with marketplace_redirect status and redirects to marketplace
+   */
+  const handleMarketplaceCheckout = async (data: MarketplaceCheckoutData): Promise<{ success: boolean; error?: string; errorType?: string; retryable?: boolean }> => {
+    return new Promise((resolve) => {
+      startTransition(async () => {
+        const orderItems = items.map(item => ({
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.price,
+        }));
 
-    if (pickupMethod === 'delivery') {
-      if (!address) {
-        toast.error('Alamat pengiriman wajib diisi');
-        return;
-      }
-      if (!selectedProvince) {
-        toast.error('Silakan pilih provinsi tujuan pengiriman');
-        return;
-      }
-    }
+        const result = await createOrderAction({
+          items: orderItems,
+          pickupMethod: data.deliveryMethod,
+          note: data.note,
+          phone: data.phone,
+          address: data.address,
+          province: data.province,
+          shippingCost: data.shippingCost,
+          checkoutMethod: 'marketplace',
+          marketplacePlatform: data.marketplace as 'shopee' | 'tokopedia',
+        });
 
-    startTransition(async () => {
-      const orderItems = items.map(item => ({
-        productId: item.productId,
-        productName: item.productName,
-        quantity: item.quantity,
-        unitPrice: item.price,
-      }));
+        if (result?.error) {
+          toast.error(result.error);
+          resolve({ success: false, error: result.error, retryable: true });
+        } else if (result.success) {
+          // Clear cart before redirecting to marketplace
+          clearCart();
 
-      const result = await createOrderAction({
-        items: orderItems,
-        pickupMethod,
-        note,
-        phone,
-        address: pickupMethod === 'delivery' 
-          ? `${address}, ${selectedProvince}` 
-          : undefined,
-        shippingCost: pickupMethod === 'delivery' ? shippingCost : 0,
-      });
+          // Open marketplace URLs for each product
+          const marketplaceUrls: string[] = [];
+          items.forEach(item => {
+            let url: string | undefined;
+            if (data.marketplace === 'shopee') {
+              url = item.shopeeUrl || undefined;
+            } else if (data.marketplace === 'tokopedia') {
+              url = item.tokopediaUrl || undefined;
+            }
 
-      if (result?.error) {
-        toast.error(result.error);
-      } else if (result.success) {
-        clearCart();
-        if (result.redirectUrl) {
-            window.location.href = result.redirectUrl;
+            if (url && !marketplaceUrls.includes(url)) {
+              marketplaceUrls.push(url);
+            }
+          });
+
+          // Open each unique marketplace URL in a new tab
+          marketplaceUrls.forEach(url => {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          });
+
+          toast.success('Pesanan berhasil dibuat! Anda akan diarahkan ke marketplace.');
+          
+          // Redirect to orders page after a short delay
+          setTimeout(() => {
+            window.location.href = '/orders';
+          }, 2000);
+
+          resolve({ success: true });
         } else {
-             toast.success('Pesanan berhasil dibuat!');
+          resolve({ success: false, error: 'Terjadi kesalahan yang tidak diketahui', retryable: true });
         }
-      }
+      });
     });
   };
 
+  /**
+   * Handle direct checkout submission
+   * Creates order with pending_payment status and redirects to Midtrans
+   */
+  const handleDirectCheckout = async (data: DirectCheckoutData): Promise<void> => {
+    return new Promise((resolve) => {
+      startTransition(async () => {
+        const orderItems = items.map(item => ({
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.price,
+        }));
+
+        const result = await createOrderAction({
+          items: orderItems,
+          pickupMethod: data.deliveryMethod,
+          note: data.note,
+          phone: data.phone,
+          address: data.address,
+          province: data.province,
+          shippingCost: data.shippingCost,
+          checkoutMethod: 'direct',
+        });
+
+        if (result?.error) {
+          toast.error(result.error);
+          resolve();
+        } else if (result.success) {
+          clearCart();
+          if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+          } else {
+            toast.success('Pesanan berhasil dibuat!');
+            window.location.href = '/orders';
+          }
+          resolve();
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
+  // Determine which checkout flow to render based on configuration
+  // Requirement 13.3, 13.4, 13.5
+  
+  // Case 1: Both methods enabled - show method selection first
+  if (checkoutConfig.method === 'both' && !selectedMethod) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+          <CheckoutMethodSelection onSelect={setSelectedMethod} />
+        </div>
+      </div>
+    );
+  }
+
+  // Determine active method
+  const activeMethod = selectedMethod || 
+    (checkoutConfig.marketplaceEnabled ? 'marketplace' : 'direct');
+
+  // Case 2: Marketplace checkout flow
+  if (activeMethod === 'marketplace') {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 space-y-10">
+          <FadeIn>
+            <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground">
+              Checkout Pesanan
+            </h1>
+          </FadeIn>
+
+          <FadeIn delay={0.2}>
+            <MarketplaceCheckoutFlow
+              items={items}
+              totalPrice={totalPrice}
+              onCheckout={handleMarketplaceCheckout}
+              isProcessing={isPending}
+            />
+          </FadeIn>
+        </div>
+      </div>
+    );
+  }
+
+  // Case 3: Direct checkout flow
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 space-y-10">
@@ -126,185 +220,12 @@ export default function CheckoutPage() {
         </FadeIn>
 
         <FadeIn delay={0.2}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <div className="bg-card rounded-2xl shadow-sm border border-border/50 p-6 space-y-6">
-                <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center text-sm font-bold">
-                    1
-                  </span>
-                  Informasi Kontak
-                </h2>
-
-                <div className="grid gap-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium">
-                      Nomor Telepon *
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="08123456789"
-                      className="h-12 rounded-xl"
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-                <div className="bg-card rounded-2xl shadow-sm border border-border/50 p-6 space-y-6">
-                <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center text-sm font-bold">
-                    2
-                  </span>
-                  Metode Pengiriman
-                </h2>
-
-                <div className="p-5 border-2 border-primary bg-primary/5 ring-1 ring-primary rounded-2xl flex items-start gap-3">
-                    <div className="mt-1 text-primary">
-                        <CircleCheck className="w-5 h-5 fill-current text-primary-foreground" />
-                    </div>
-                    <div>
-                        <p className="font-semibold text-foreground">
-                          Pengiriman Ekspedisi
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Dikirim dari Silungkang menggunakan ekspedisi rekanan (JNE/J&T/Sicepat).
-                        </p>
-                    </div>
-                </div>
-
-                  <FadeIn className="space-y-4 pt-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="province">Provinsi Tujuan *</Label>
-                        <Select
-                            value={selectedProvince}
-                            onValueChange={setSelectedProvince}
-                        >
-                            <SelectTrigger className="h-12 rounded-xl">
-                                <SelectValue placeholder="Pilih Provinsi" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {PROVINCES.map((prov) => (
-                                    <SelectItem key={prov} value={prov}>
-                                        {prov}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="address">Alamat Lengkap *</Label>
-                        <Textarea
-                        id="address"
-                        placeholder="Masukkan alamat lengkap (Jalan, No, RT/RW, Kelurahan, Kecamatan, Kode Pos)"
-                        rows={4}
-                        className="rounded-xl"
-                        value={address}
-                        onChange={e => setAddress(e.target.value)}
-                        />
-                    </div>
-                  </FadeIn>
-              </div>
-
-              <div className="bg-card rounded-2xl shadow-sm border border-border/50 p-6 space-y-2">
-                <h2 className="font-heading text-xl font-semibold flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center text-sm font-bold">
-                    3
-                  </span>
-                  Catatan Tambahan
-                </h2>
-                <Textarea
-                  placeholder="Catatan untuk pesanan ini (opsional)"
-                  rows={4}
-                  className="rounded-xl"
-                  value={note}
-                  onChange={e => setNote(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="lg:col-span-1">
-              <div className="bg-card rounded-2xl shadow-lg border border-border/50 p-6 space-y-5 sticky top-24">
-                <h2 className="font-heading text-xl font-bold">
-                  Ringkasan Pesanan
-                </h2>
-
-                <div className="space-y-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                  {items.map(item => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between text-sm py-2 border-b border-border/50 last:border-0"
-                    >
-                      <div>
-                        <p className="font-semibold text-foreground">
-                          {item.productName}
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
-                      <p className="font-semibold text-foreground">
-                        {formatRupiah(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-semibold text-foreground">
-                      {formatRupiah(totalPrice)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Biaya Pengiriman
-                    </span>
-                    <span className="font-medium">
-                      {pickupMethod === 'in_store'
-                        ? 'Gratis'
-                        : selectedProvince 
-                            ? formatRupiah(shippingCost)
-                            : '-'}
-                    </span>
-                  </div>
-                </div>
-
-                <Separator className="bg-border" />
-
-                <div className="flex justify-between text-xl font-bold text-primary">
-                  <span>Total</span>
-                  <span>{formatRupiah(finalTotal)}</span>
-                </div>
-
-                <Button
-                  onClick={handleCheckout}
-                  disabled={isPending}
-                  className="w-full h-12 text-lg rounded-xl shadow-lg hover:shadow-primary/25 transition-all"
-                  size="lg"
-                >
-                  {isPending ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-5 h-5 animate-spin" /> Memproses...
-                    </div>
-                  ) : (
-                    'Buat Pesanan Sekarang'
-                  )}
-                </Button>
-
-                <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Tombol ini akan membuat pesanan Anda.
-                </p>
-              </div>
-            </div>
-          </div>
+          <DirectCheckoutFlow
+            items={items}
+            totalPrice={totalPrice}
+            onCheckout={handleDirectCheckout}
+            isProcessing={isPending}
+          />
         </FadeIn>
       </div>
     </div>
