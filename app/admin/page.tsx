@@ -4,6 +4,7 @@ import { Package, ShoppingBag, Users, Store } from 'lucide-react';
 import { formatRupiah } from '@/lib/utils';
 import OrderStatusBadge from '@/components/dashboard/order-status-badge';
 import Link from 'next/link';
+import CheckoutConfigDisplay from '@/app/admin/components/CheckoutConfigDisplay';
 
 export const metadata = {
   title: 'Admin Dashboard - Songket.id',
@@ -170,6 +171,11 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Checkout Configuration - Super Admin Only */}
+      {isSuperAdmin && (
+        <CheckoutConfigDisplay />
+      )}
 
       <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border/50 flex items-center justify-between">
