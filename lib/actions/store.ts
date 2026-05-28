@@ -244,9 +244,10 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
   
   const isSuperAdmin = profile?.role === 'super_admin';
   const isOwner = store.owner_id === user.id;
+  const isAdmin = profile?.role === 'admin' && profile?.store_id === storeId;
   const isStaff = profile?.role === 'artisan' && profile?.store_id === storeId;
 
-  if (!isOwner && !isSuperAdmin && !isStaff) {
+  if (!isOwner && !isSuperAdmin && !isAdmin && !isStaff) {
     return { error: 'Unauthorized' };
   }
 

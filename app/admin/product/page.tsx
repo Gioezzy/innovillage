@@ -37,10 +37,48 @@ export default async function ProductListPage() {
       .select('id')
       .eq('owner_id', user.id)
       .single();
+    
     if (store) {
       query = query.eq('store_id', store.id);
     } else {
-      query = query.eq('id', '00000000-0000-0000-0000-000000000000');
+      // Jika tidak ada store, cek apakah user adalah admin/artisan dengan store_id
+      const { data: profileWithStore } = await supabase
+        .from('profiles')
+        .select('store_id')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileWithStore?.store_id) {
+        query = query.eq('store_id', profileWithStore.store_id);
+      } else {
+        // Jika benar-benar tidak ada store, return empty array
+        return (
+          <div className="space-y-8">
+            <FadeIn>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground font-heading">
+                    Manajemen Produk
+                  </h1>
+                  <p className="text-muted-foreground mt-2">
+                    Kelola katalog produk bordir Anda
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <div className="bg-card rounded-2xl border border-border/50 shadow-sm p-12 text-center">
+                <p className="text-muted-foreground">
+                  Anda belum memiliki toko. Silakan buka toko terlebih dahulu.
+                </p>
+                <Link href="/open-shop" className="mt-4 inline-block">
+                  <Button>Buka Toko</Button>
+                </Link>
+              </div>
+            </FadeIn>
+          </div>
+        );
+      }
     }
   }
 
