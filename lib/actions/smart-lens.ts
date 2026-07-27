@@ -155,7 +155,8 @@ export async function scanSongket(formData: FormData): Promise<SmartLensResult> 
       .from('motifs')
       .select('*')
       .ilike('name', `%${aiResult.motif}%`)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     let relatedProducts: any[] = [];
     if (motifData) {

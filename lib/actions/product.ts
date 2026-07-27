@@ -33,7 +33,7 @@ export const getProducts = cache(async (filters: ProductFilters = {}) => {
     query = query.lte('price', filters.maxPrice)
   }
   if(filters.search){
-    query = query.ilike('name', `%${filters.search}`)
+    query = query.ilike('name', `%${filters.search}%`)
   }
 
   if(filters.storeId){

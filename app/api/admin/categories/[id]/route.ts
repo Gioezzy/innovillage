@@ -20,7 +20,7 @@ export async function PUT(
       .eq('id', user.id)
       .single();
 
-    if (!profile || profile.role !== 'admin') {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -104,7 +104,7 @@ export async function DELETE(
       .eq('id', user.id)
       .single();
 
-    if (!profile || profile.role !== 'admin') {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

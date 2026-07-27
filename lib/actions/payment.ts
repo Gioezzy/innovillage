@@ -104,7 +104,7 @@ export async function generatePaymentTokenAction(orderId: string) {
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
-    .select('*, order_items(*)')
+    .select('*, order_items(*, product:products(name))')
     .eq('id', orderId)
     .eq('user_id', user.id)
     .single();
@@ -140,7 +140,7 @@ export async function generatePaymentTokenAction(orderId: string) {
     },
     itemDetails: order.order_items.map((item: any) => ({
       id: item.product_id || item.id,
-      name: item.product_snapshot.name,
+      name: item.product?.name || item.product_snapshot?.name || 'Produk Songket',
       price: item.unit_price,
       quantity: item.quantity,
     })),
