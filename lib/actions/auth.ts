@@ -29,7 +29,7 @@ export async function loginAction(formData: FormData) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, store_id')
     .eq('id', data.user.id)
     .single();
 
@@ -38,8 +38,30 @@ export async function loginAction(formData: FormData) {
     return { error: 'Gagal mengambil data user' };
   }
 
+  let role = profile.role;
 
-  switch (profile.role) {
+  if (role === 'customer') {
+    const { data: userStore } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('owner_id', data.user.id)
+      .maybeSingle();
+
+    if (userStore) {
+      role = 'admin';
+      const { createClient: createServiceClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      await supabaseAdmin
+        .from('profiles')
+        .update({ role: 'admin', store_id: userStore.id })
+        .eq('id', data.user.id);
+    }
+  }
+
+  switch (role) {
     case 'super_admin':
       return redirect('/super-admin');
     case 'admin':
