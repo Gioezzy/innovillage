@@ -29,7 +29,10 @@ type Category = {
     slug: string;
 };
 
-
+type StoreItem = {
+    name: string;
+    slug: string;
+};
 
 const PROTECTED_MENU_ITEMS = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -44,27 +47,40 @@ export default function Navbar() {
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
   const shopMenuRef = useRef<HTMLDivElement>(null);
+  const storeMenuRef = useRef<HTMLDivElement>(null);
 
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [stores, setStores] = useState<StoreItem[]>([]);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-        const { data } = await supabase
+    const fetchNavbarData = async () => {
+        const { data: catData } = await supabase
             .from('categories')
             .select('name, slug')
-            .limit(5); // Limit to 5 for dropdown to keep it clean
+            .limit(5);
         
-        if (data) {
-            setCategories(data);
+        if (catData) {
+            setCategories(catData);
+        }
+
+        const { data: storeData } = await supabase
+            .from('stores')
+            .select('name, slug')
+            .eq('is_active', true)
+            .limit(5);
+
+        if (storeData) {
+            setStores(storeData);
         }
     };
-    fetchCategories();
+    fetchNavbarData();
   }, []);
 
   const handleLogout = async () => {
@@ -100,6 +116,12 @@ export default function Navbar() {
       ) {
         setIsShopOpen(false);
       }
+      if (
+        storeMenuRef.current &&
+        !storeMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsStoreOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -110,6 +132,7 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
     setIsShopOpen(false);
+    setIsStoreOpen(false);
   }, [pathname]);
 
   const isProtectedRoute =
@@ -169,6 +192,48 @@ export default function Navbar() {
                     className="block px-4 py-2.5 text-primary hover:bg-secondary transition-colors text-sm font-medium"
                   >
                     Lihat Semua Koleksi
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <div className="relative" ref={storeMenuRef}>
+              <button
+                onClick={() => setIsStoreOpen(!isStoreOpen)}
+                className="flex items-center space-x-1 text-muted-foreground hover:text-foreground font-medium transition-colors"
+              >
+                <span>Toko</span>
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-200 ${
+                    isStoreOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {isStoreOpen && (
+                <div className="absolute top-full left-0 mt-3 w-56 bg-card border rounded-lg shadow-lg py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                  {stores.length > 0 ? (
+                    stores.map(st => (
+                      <Link
+                        key={st.slug}
+                        href={`/stores/${st.slug}`}
+                        className="flex items-center gap-2 px-4 py-2.5 text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors text-sm"
+                      >
+                        <Store className="w-4 h-4 text-primary shrink-0" />
+                        <span className="truncate">{st.name}</span>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-xs text-muted-foreground">
+                      Belum ada toko aktif
+                    </div>
+                  )}
+                  <div className="border-t my-1"></div>
+                  <Link
+                    href="/stores"
+                    className="block px-4 py-2.5 text-primary hover:bg-secondary transition-colors text-sm font-medium"
+                  >
+                    Lihat Semua Toko
                   </Link>
                 </div>
               )}
@@ -332,7 +397,29 @@ export default function Navbar() {
                     href="/shop"
                     className="block px-4 py-3 text-primary hover:bg-secondary rounded-lg transition-colors font-medium"
                   >
-                    Lihat Semua
+                    Lihat Semua Koleksi
+                  </Link>
+                </div>
+
+                <div className="pb-2 mb-2 border-b">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-4">
+                    Toko & Pengrajin
+                  </div>
+                  {stores.map(st => (
+                    <Link
+                      key={st.slug}
+                      href={`/stores/${st.slug}`}
+                      className="flex items-center gap-2 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg transition-colors"
+                    >
+                      <Store className="w-4 h-4 text-primary shrink-0" />
+                      <span className="truncate">{st.name}</span>
+                    </Link>
+                  ))}
+                  <Link
+                    href="/stores"
+                    className="block px-4 py-3 text-primary hover:bg-secondary rounded-lg transition-colors font-medium"
+                  >
+                    Lihat Semua Toko
                   </Link>
                 </div>
 

@@ -5,12 +5,12 @@ import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '../ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
 import {
   getUserNotifications,
   markAllNotificationsAsRead,
@@ -42,8 +42,8 @@ export default function NotificationBell() {
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="relative group">
           <Bell className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
           {unreadCount > 0 && (
@@ -52,30 +52,30 @@ export default function NotificationBell() {
             </span>
           )}
         </Button>
-      </AlertDialogTrigger>
+      </DialogTrigger>
 
-      <AlertDialogContent className="max-w-md max-h-[600px] overflow-hidden flex flex-col">
-        <AlertDialogHeader>
+      <DialogContent className="max-w-md max-h-[600px] overflow-hidden flex flex-col p-6">
+        <DialogHeader className="pr-6">
           <div className="flex items-center justify-between">
-            <AlertDialogTitle>Notifikasi</AlertDialogTitle>
+            <DialogTitle className="text-xl font-bold font-heading">Notifikasi</DialogTitle>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleMarkAllRead}
-                className="text-xs"
+                className="text-xs text-muted-foreground hover:text-foreground"
               >
                 Tandai Semua Dibaca
               </Button>
             )}
           </div>
-        </AlertDialogHeader>
+        </DialogHeader>
 
         <NotificationList
           notifications={notifications}
           onUpdate={loadNotifications}
         />
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
