@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '../supabase/server';
+import { createClient, createAdminClient } from '../supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -12,16 +12,27 @@ export async function getStaffList() {
 
   if (!user) return [];
 
-  const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
-  
-  if (!store) return [];
+  const { data: profile } = await supabase.from('profiles').select('store_id, role').eq('id', user.id).single();
 
-  const { data: staff } = await supabase
+  let storeId = profile?.store_id;
+  if (!storeId) {
+    const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+    storeId = store?.id;
+  }
+
+  if (!storeId) return [];
+
+  const supabaseAdmin = await createAdminClient();
+  const { data: staff, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .eq('store_id', store.id)
+      .eq('store_id', storeId)
       .eq('role', 'artisan')
       .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching staff list:', error);
+  }
 
   return staff || [];
 }
@@ -34,10 +45,15 @@ export async function createStaffAction(formData: FormData) {
 
   if (!user) return { error: 'Unauthorized' };
 
-  const { data: requesterProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+  const { data: requesterProfile } = await supabase.from('profiles').select('role, store_id').eq('id', user.id).single();
 
-  if (requesterProfile?.role !== 'admin' || !store) {
+  let storeId = requesterProfile?.store_id;
+  if (!storeId) {
+    const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+    storeId = store?.id;
+  }
+
+  if (!['admin', 'super_admin'].includes(requesterProfile?.role || '') || !storeId) {
       return { error: 'Unauthorized. Hanya Admin Toko yang dapat menambahkan staff.' };
   }
 
@@ -79,7 +95,7 @@ export async function createStaffAction(formData: FormData) {
           id: authData.user.id,
           full_name: fullName,
           role: 'artisan',
-          store_id: store.id 
+          store_id: storeId 
       })
       .select()
       .single();
