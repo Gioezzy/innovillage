@@ -36,6 +36,7 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
 
   const [name, setName] = useState(store.name);
   const [slug, setSlug] = useState(store.slug);
+  const [isActive, setIsActive] = useState<boolean>(store.is_active ?? true);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -115,6 +116,7 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
         }
 
         formData.set('slug', slug);
+        formData.set('is_active', String(isActive));
 
         formData.delete('image_file');
         formData.delete('banner_file');
@@ -146,6 +148,37 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          <div className="p-4 rounded-xl border border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Label className="text-base font-semibold">Status Operasional Toko</Label>
+                <span
+                  className={`text-xs px-2.5 py-0.5 rounded-full font-medium border ${
+                    isActive
+                      ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                      : 'bg-red-500/10 text-red-600 border-red-500/20'
+                  }`}
+                >
+                  {isActive ? 'Toko Buka / Aktif' : 'Toko Tutup / Nonaktif'}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isActive
+                  ? 'Toko Anda sedang Buka. Produk Anda dapat dilihat dan dibeli oleh pelanggan.'
+                  : 'Toko Anda sedang Tutup. Produk Anda akan disembunyikan sementara dari marketplace.'}
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={e => setIsActive(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+            </label>
+          </div>
+
           <div className="space-y-2">
             <Label>Nama Toko</Label>
             <Input

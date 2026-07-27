@@ -38,7 +38,7 @@ export async function createStoreAction(formData: FormData) {
     return { error: 'Gagal membuat toko.' };
   }
 
-  await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+  await supabase.from('profiles').update({ role: 'admin', store_id: data.id }).eq('id', user.id);
   
   revalidatePath('/', 'layout');
 
@@ -145,7 +145,7 @@ export async function createStoreByAdminAction(formData: FormData) {
       is_verified: true,
   };
 
-  const { error: storeError } = await supabaseAdmin.from('stores').insert(newStore);
+  const { data: createdStore, error: storeError } = await supabaseAdmin.from('stores').insert(newStore).select('id').single();
 
   if (storeError) {
       console.error("Create store error", storeError);
@@ -155,7 +155,7 @@ export async function createStoreByAdminAction(formData: FormData) {
       return { error: 'Gagal membuat toko.' };
   }
 
-  await supabaseAdmin.from('profiles').update({ role: 'admin' }).eq('id', ownerId);
+  await supabaseAdmin.from('profiles').update({ role: 'admin', store_id: createdStore?.id }).eq('id', ownerId);
 
   revalidatePath('/super-admin/stores');
   return { success: true };
@@ -188,7 +188,19 @@ export async function getUserStore() {
     .from('stores')
     .select('*')
     .eq('owner_id', user.id)
-    .single();
+    .maybeSingle();
+
+  if (data && profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+    const { createClient: createServiceClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    await supabaseAdmin
+      .from('profiles')
+      .update({ role: 'admin', store_id: data.id })
+      .eq('id', user.id);
+  }
 
   return data;
 }
@@ -256,6 +268,8 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
   const description = formData.get('description') as string;
   const imageUrlInput = formData.get('image_url') as string; 
   const bannerUrlInput = formData.get('banner_url') as string;
+  const isActiveInput = formData.get('is_active');
+  const isActive = isActiveInput !== null ? isActiveInput === 'true' : undefined;
 
   const { createClient: createServiceClient } = await import('@supabase/supabase-js');
   const supabaseAdmin = createServiceClient(
@@ -279,6 +293,7 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
     description,
     image_url: imageUrl,
     banner_url: bannerUrl,
+    ...(isActive !== undefined && { is_active: isActive }),
     updated_at: new Date().toISOString(),
   };
 
@@ -298,5 +313,118 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
   revalidatePath('/stores/[slug]', 'page');
   revalidatePath('/admin/store/settings');
   
+  return { success: true };
+}
+
+export async function toggleStoreActiveAction(storeId: string, isActive: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'super_admin') {
+    return { error: 'Hanya Super Admin yang dapat mengubah status aktif toko.' };
+  }
+
+  const { createClient: createServiceClient } = await import('@supabase/supabase-js');
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { error } = await supabaseAdmin
+    .from('stores')
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
+    .eq('id', storeId);
+
+  if (error) {
+    console.error('Error toggling store active status:', error);
+    return { error: 'Gagal mengubah status toko.' };
+  }
+
+  revalidatePath('/super-admin/stores');
+  return { success: true };
+}
+
+export async function deleteInactiveStoreAction(storeId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Unauthorized' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'super_admin') {
+    return { error: 'Hanya Super Admin yang dapat menghapus toko.' };
+  }
+
+  const { createClient: createServiceClient } = await import('@supabase/supabase-js');
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: store } = await supabaseAdmin
+    .from('stores')
+    .select('id, name, is_active, owner_id')
+    .eq('id', storeId)
+    .single();
+
+  if (!store) {
+    return { error: 'Toko tidak ditemukan.' };
+  }
+
+  if (store.is_active) {
+    return { error: 'Hanya toko yang nonaktif / tutup yang dapat dihapus.' };
+  }
+
+  // Reset profiles connected to this store to customer role and store_id null
+  await supabaseAdmin
+    .from('profiles')
+    .update({ store_id: null, role: 'customer' })
+    .eq('store_id', storeId);
+
+  if (store.owner_id) {
+    await supabaseAdmin
+      .from('profiles')
+      .update({ store_id: null, role: 'customer' })
+      .eq('id', store.owner_id);
+  }
+
+  // Delete all products associated with this store
+  const { error: productsDeleteError } = await supabaseAdmin
+    .from('products')
+    .delete()
+    .eq('store_id', storeId);
+
+  if (productsDeleteError) {
+    console.error('Error deleting store products:', productsDeleteError);
+  }
+
+  const { error: deleteError } = await supabaseAdmin
+    .from('stores')
+    .delete()
+    .eq('id', storeId);
+
+  if (deleteError) {
+    console.error('Error deleting store:', deleteError);
+    return { error: `Gagal menghapus toko: ${deleteError.message}` };
+  }
+
+  revalidatePath('/super-admin/stores');
   return { success: true };
 }
