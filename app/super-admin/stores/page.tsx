@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import FadeIn from '@/components/animations/fade-in';
 import Image from 'next/image';
+import DeleteStoreButton from '@/components/admin/delete-store-button';
 
 export const metadata = {
   title: 'Manajemen Toko - Super Admin',
@@ -152,11 +153,18 @@ export default async function AdminStoresPage() {
                       </Link>
                     </td>
                     <td className="px-6 py-4">
-                      <Link href={`/super-admin/stores/${store.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/super-admin/stores/${store.id}/edit`}>
+                          <Button variant="outline" size="sm">
+                            Edit
+                          </Button>
+                        </Link>
+                        <DeleteStoreButton
+                          storeId={store.id}
+                          storeName={store.name}
+                          isActive={store.is_active ?? true}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

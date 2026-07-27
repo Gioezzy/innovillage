@@ -149,14 +149,18 @@ export async function approveStoreRequestAction(requestId: string) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
 
-    const { error: storeError } = await supabaseAdmin.from('stores').insert({
-        name: request.store_name,
-        slug,
-        description: request.store_description,
-        owner_id: request.user_id,
-        is_active: true,
-        is_verified: true,
-    });
+    const { data: createdStore, error: storeError } = await supabaseAdmin
+        .from('stores')
+        .insert({
+            name: request.store_name,
+            slug,
+            description: request.store_description,
+            owner_id: request.user_id,
+            is_active: true,
+            is_verified: true,
+        })
+        .select('id')
+        .single();
 
     if (storeError) {
         console.error('Error creating store on approve:', storeError);
@@ -168,7 +172,7 @@ export async function approveStoreRequestAction(requestId: string) {
 
     await supabaseAdmin
         .from('profiles')
-        .update({ role: 'admin' })
+        .update({ role: 'admin', store_id: createdStore.id })
         .eq('id', request.user_id);
 
     await supabaseAdmin.from('store_requests').update({
