@@ -126,10 +126,12 @@ export default async function Footer() {
                     WhatsApp
                   </span>
                   <a
-                    href="#"
-                    className="hover:text-foreground transition-colors"
+                    href="https://wa.me/6289530124209"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground transition-colors font-medium"
                   >
-                    +62 812-3456-7890
+                    +62 895-3012-4209
                   </a>
                 </div>
               </li>
