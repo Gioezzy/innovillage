@@ -22,6 +22,7 @@ import { logoutAction } from '@/lib/actions/auth';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 
 type Category = {
@@ -153,11 +154,8 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           <Link
             href="/"
-            className="font-heading text-2xl font-bold text-foreground hover:text-primary transition-colors tracking-tight flex items-center gap-2"
+            className="font-heading text-2xl font-bold text-foreground hover:text-primary transition-colors tracking-tight"
           >
-            <span className="bg-primary/10 text-primary p-1 rounded-lg">
-              <ShoppingBag className="w-6 h-6" />
-            </span>
             Songket.id
           </Link>
 
