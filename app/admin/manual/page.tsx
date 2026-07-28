@@ -1,10 +1,11 @@
-import { Package, ShoppingBag, Banknote, Settings, HelpCircle, Store } from 'lucide-react';
+import { Package, ShoppingBag, Banknote, Settings, HelpCircle, Store, Users, Sparkles, CheckCircle2 } from 'lucide-react';
 import FadeIn from '@/components/animations/fade-in';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from '@/components/ui/badge';
 
 export const metadata = {
-  title: 'Panduan Toko - Admin',
+  title: 'Buku Panduan Mitra Toko & Staff - Songket.id',
 };
 
 export default function StoreManualPage() {
@@ -12,196 +13,290 @@ export default function StoreManualPage() {
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
       <FadeIn>
         <div className="border-b border-border/50 pb-6 mb-6">
-          <h1 className="text-3xl font-bold text-foreground font-heading">
-            Buku Panduan Mitra Toko
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Panduan lengkap pengelolaan toko, produk, dan pesanan untuk Mitra Innovillage.
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground font-heading">
+              Buku Panduan Mitra Toko & Staff
+            </h1>
+            <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 font-semibold">
+              Versi Terkini
+            </Badge>
+          </div>
+          <p className="text-muted-foreground text-base">
+            Panduan operasional lengkap pengelolaan produk, alur pesanan, staf toko, status operasional, dan keuangan untuk <strong>Admin Toko</strong> dan <strong>Staff (Artisan)</strong>.
           </p>
         </div>
       </FadeIn>
 
       <Tabs defaultValue="products" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-5 h-auto p-1 bg-muted/50 rounded-xl">
-             <TabsTrigger value="products" className="py-2.5">Produk</TabsTrigger>
-             <TabsTrigger value="orders" className="py-2.5">Pesanan</TabsTrigger>
-             <TabsTrigger value="finance" className="py-2.5">Keuangan</TabsTrigger>
-             <TabsTrigger value="settings" className="py-2.5">Pengaturan</TabsTrigger>
-             <TabsTrigger value="faq" className="py-2.5">Masalah</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto p-1.5 bg-muted/80 rounded-xl border border-border/50 shadow-inner">
+          <TabsTrigger value="products" className="py-3 text-sm font-bold">
+            Produk
+          </TabsTrigger>
+          <TabsTrigger value="orders" className="py-3 text-sm font-bold">
+            Pesanan
+          </TabsTrigger>
+          <TabsTrigger value="finance" className="py-3 text-sm font-bold">
+            Keuangan
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="py-3 text-sm font-bold">
+            Pengaturan
+          </TabsTrigger>
+          <TabsTrigger value="staff" className="py-3 text-sm font-bold">
+            Staf Toko
+          </TabsTrigger>
+          <TabsTrigger value="faq" className="py-3 text-sm font-bold">
+            Masalah
+          </TabsTrigger>
         </TabsList>
 
+        {/* TAB PRODUK */}
         <TabsContent value="products" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Package className="w-5 h-5 text-primary" />
-                        Manajemen Produk
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-2">
-                            <h3 className="font-semibold text-lg">1. Menambah Produk Baru</h3>
-                            <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground mt-2">
-                                <li>Masuk ke menu <strong>Products</strong> &rarr; Klik <strong>Add New</strong>.</li>
-                                <li>Isi nama produk dengan jelas (Contoh: "Songket Pandai Sikek Warna Merah").</li>
-                                <li>Upload minimal 1 foto berkualitas tinggi (Format JPG/PNG, maks 5MB).</li>
-                                <li>Pilih Kategori yang sesuai agar mudah ditemukan pembeli.</li>
-                            </ul>
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="font-semibold text-lg">2. Stok & Varian</h3>
-                            <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground mt-2">
-                                <li>Selalu update stok secara berkala. Jika stok habis, produk otomatis tidak bisa dibeli.</li>
-                                <li>Gunakan fitur "Is Limited" untuk produk edisi terbatas agar menarik pembeli.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="bg-blue-50 text-blue-800 p-4 rounded-md text-sm border border-blue-100">
-                        <strong>Tips Foto Produk:</strong> Gunakan pencahayaan alami dan latar belakang polos agar motif Songket terlihat jelas.
-                    </div>
-                </CardContent>
-            </Card>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold font-heading">
+                <Package className="w-5 h-5 text-primary" />
+                Manajemen Produk & Katalog Tenun
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-3 bg-card p-5 rounded-xl border border-border/50">
+                  <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-black">1</span>
+                    Menambah & Mengedit Produk
+                  </h3>
+                  <ul className="list-disc pl-5 text-sm space-y-2 text-muted-foreground">
+                    <li>Masuk ke menu <strong>Produk</strong> &rarr; Klik <strong>Tambah Produk Baru</strong>.</li>
+                    <li>Isi <strong>Nama Produk</strong> secara spesifik (Contoh: <em>Songket Pandai Sikek Motif Bintang Ngarai - Merah Maroon</em>).</li>
+                    <li>Upload foto produk berkualitas (Format JPG/PNG, ukuran maks 5MB per foto).</li>
+                    <li>Pilih <strong>Kategori Songket</strong> yang sesuai agar mudah ditemukan pembeli.</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3 bg-card p-5 rounded-xl border border-border/50">
+                  <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-black">2</span>
+                    Stok & Varian Edisi Terbatas
+                  </h3>
+                  <ul className="list-disc pl-5 text-sm space-y-2 text-muted-foreground">
+                    <li>Selalu perbarui jumlah stok secara berkala. Produk dengan stok 0 otomatis tidak dapat dibeli.</li>
+                    <li>Aktifkan opsi <strong>"Is Limited"</strong> untuk kain songket langka / koleksi terbatas.</li>
+                    <li>Produk edisi terbatas akan mendapat badge khusus yang meningkatkan daya tarik pembeli.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-primary/5 border border-primary/20 text-primary-foreground p-4 rounded-xl flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <div className="text-sm text-foreground/90">
+                  <strong className="text-primary font-bold">Integrasi AI Smart Lens:</strong> Pembeli dapat mencari produk Anda dengan mengunggah foto kain melalui fitur AI Smart Lens. Pastikan pola dan motif kain terlihat sangat jelas pada foto utama produk Anda.
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
+        {/* TAB PESANAN */}
         <TabsContent value="orders" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <ShoppingBag className="w-5 h-5 text-primary" />
-                        Proses Pesanan
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                        <div className="flex items-start gap-4 p-4 border rounded-lg">
-                            <div className="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center font-bold">1</div>
-                            <div>
-                                <h4 className="font-semibold">Pesanan Masuk (Paid)</h4>
-                                <p className="text-sm text-muted-foreground">Pembeli sudah membayar. Segera siapkan barang.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4 p-4 border rounded-lg">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">2</div>
-                            <div>
-                                <h4 className="font-semibold">Proses/Kemas (In Weaving/Process)</h4>
-                                <p className="text-sm text-muted-foreground">Ubah status menjadi 'In Weaving' jika barang sedang dibuat, atau langsung kemas jika ready stock.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4 p-4 border rounded-lg">
-                            <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">3</div>
-                            <div>
-                                <h4 className="font-semibold">Siap Diambil/Dikirim (Ready for Pickup)</h4>
-                                <p className="text-sm text-muted-foreground">Barang sudah siap. Kurir akan menjemput atau pembeli akan mengambil (jika COD).</p>
-                            </div>
-                        </div>
-                         <div className="flex items-start gap-4 p-4 border rounded-lg bg-green-50/50">
-                            <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">4</div>
-                            <div>
-                                <h4 className="font-semibold">Selesai (Completed)</h4>
-                                <p className="text-sm text-muted-foreground">Barang diterima pembeli. Dana akan masuk ke saldo toko.</p>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold font-heading">
+                <ShoppingBag className="w-5 h-5 text-primary" />
+                Alur & Manajemen Status Pesanan
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <p className="text-sm text-muted-foreground">
+                Setiap transaksi pesanan pembeli memiliki 4 tahapan status resmi di platform Songket.id:
+              </p>
+
+              <div className="space-y-4">
+                <div className="flex items-start gap-4 p-4 border rounded-xl bg-amber-500/5 border-amber-500/20">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shrink-0">1</div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-foreground">Pesanan Masuk (Paid)</h4>
+                    <p className="text-sm text-muted-foreground">Pembeli telah melakukan pembayaran terverifikasi. Segera siapkan barang atau jadwalkan penenunan kain.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 border rounded-xl bg-blue-500/5 border-blue-500/20">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black shrink-0">2</div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-foreground">Diproses / Ditenun (In Weaving / Process)</h4>
+                    <p className="text-sm text-muted-foreground">Ubah status pesanan ke 'In Weaving' jika pesanan membutuhkan waktu pembuatan/penenunan khusus, atau langsung kemas barang ready stock.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 border rounded-xl bg-purple-500/5 border-purple-500/20">
+                  <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black shrink-0">3</div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-foreground">Siap Dikirim / Diambil (Ready for Pickup)</h4>
+                    <p className="text-sm text-muted-foreground">Paket barang sudah rapi dan siap diserahkan ke kurir pengiriman atau diambil langsung oleh pelanggan.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 border rounded-xl bg-emerald-500/10 border-emerald-500/30">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black shrink-0">4</div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-emerald-900 dark:text-emerald-300">Selesai (Completed)</h4>
+                    <p className="text-sm text-muted-foreground">Pelanggan telah menerima pesanan. Dana transaksi akan otomatis diteruskan ke Saldo Tersedia toko Anda.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
+        {/* TAB KEUANGAN */}
         <TabsContent value="finance" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Banknote className="w-5 h-5 text-primary" />
-                        Laporan Keuangan & Pencairan Dana
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                        <div className="bg-blue-50 text-blue-800 p-4 rounded-md text-sm border border-blue-100 mb-4">
-                            <strong>Sistem Escrow:</strong> Dana pembelian akan ditahan oleh Innovillage (Super Admin) hingga pesanan selesai. Setelah itu, dana masuk ke "Saldo Tersedia" toko Anda (dikurangi 1% biaya layanan).
-                        </div>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold font-heading">
+                <Banknote className="w-5 h-5 text-primary" />
+                Keuangan & Pencairan Saldo (Payouts)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="bg-blue-500/10 text-blue-900 dark:text-blue-200 p-4 rounded-xl text-sm border border-blue-500/20">
+                <strong className="font-bold">Sistem Rekening Bersama (Escrow):</strong> Seluruh pembayaran transaksi pembeli ditampung aman oleh sistem Innovillage hingga pesanan dinyatakan selesai. Setelah pesanan selesai, saldo masuk ke <strong>Saldo Tersedia</strong> toko (potongan komisi operasional 1%).
+              </div>
 
-                        <div className="grid gap-6 md:grid-cols-2">
-                             <div className="space-y-2">
-                                <h3 className="font-semibold text-lg">1. Mengatur Rekening Bank</h3>
-                                <p className="text-sm text-muted-foreground">Sebelum menarik dana, Anda wajib mendaftarkan rekening tujuan:</p>
-                                <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground mt-2">
-                                    <li>Buka menu <strong>Keuangan</strong> &rarr; Tab <strong>Pengaturan Rekening</strong>.</li>
-                                    <li>Isi Nama Bank, Nomor Rekening, dan Atas Nama (Wajib sesuai buku tabungan).</li>
-                                    <li>Klik <strong>Simpan Rekening</strong>.</li>
-                                </ul>
-                            </div>
-                            <div className="space-y-2">
-                                <h3 className="font-semibold text-lg">2. Cara Tarik Data (Payout)</h3>
-                                <p className="text-sm text-muted-foreground">Minimal penarikan adalah Rp 10.000.</p>
-                                <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground mt-2">
-                                    <li>Buka menu <strong>Keuangan</strong> &rarr; Tab <strong>Tarik Saldo</strong>.</li>
-                                    <li>Masukkan nominal yang ingin dicairkan.</li>
-                                    <li>Klik <strong>Ajukan Penarikan</strong>.</li>
-                                    <li>Status akan berubah menjadi <i>Pending</i> hingga disetujui Super Admin.</li>
-                                </ul>
-                            </div>
-                        </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-3 bg-card p-5 rounded-xl border border-border/50">
+                  <h3 className="font-bold text-lg text-foreground">1. Pengaturan Rekening Bank</h3>
+                  <p className="text-sm text-muted-foreground">Sebelum mengajukan penarikan dana, daftarkan rekening bank utama toko:</p>
+                  <ul className="list-disc pl-5 text-sm space-y-1.5 text-muted-foreground">
+                    <li>Buka menu <strong>Keuangan</strong> &rarr; Pilih tab <strong>Rekening Bank</strong>.</li>
+                    <li>Isi Nama Bank, Nomor Rekening, dan Nama Pemilik (Wajib sesuai buku tabungan).</li>
+                    <li>Simpan perubahan data rekening.</li>
+                  </ul>
+                </div>
 
-                         <div className="border p-4 rounded-lg bg-muted/30">
-                            <h3 className="font-semibold text-sm mb-2">Status Penarikan:</h3>
-                            <ul className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
-                                <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> <strong>Pending:</strong> Menunggu persetujuan admin.</li>
-                                <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500"></span> <strong>Berhasil:</strong> Dana sudah ditransfer.</li>
-                                <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-500"></span> <strong>Ditolak:</strong> Ada kesalahan data (cek catatan).</li>
-                            </ul>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+                <div className="space-y-3 bg-card p-5 rounded-xl border border-border/50">
+                  <h3 className="font-bold text-lg text-foreground">2. Pengajuan Penarikan Saldo</h3>
+                  <p className="text-sm text-muted-foreground">Batas minimal penarikan saldo toko adalah <strong>Rp 10.000</strong>.</p>
+                  <ul className="list-disc pl-5 text-sm space-y-1.5 text-muted-foreground">
+                    <li>Buka menu <strong>Keuangan</strong> &rarr; Pilih tab <strong>Tarik Saldo</strong>.</li>
+                    <li>Masukkan nominal saldo yang ingin dicairkan.</li>
+                    <li>Klik <strong>Ajukan Pencairan</strong>.</li>
+                    <li>Status pencairan akan bertanda <em>Pending</em> hingga ditransfer oleh Super Admin.</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
+        {/* TAB PENGATURAN TOKO */}
         <TabsContent value="settings" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Settings className="w-5 h-5 text-primary" />
-                        Pengaturan Toko
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="border p-4 rounded-lg">
-                            <h4 className="font-semibold mb-2">Profil Toko</h4>
-                            <p className="text-sm text-muted-foreground">Ganti foto profil dan banner toko secara berkala untuk menarik pembeli. Tulis deskripsi yang menceritakan sejarah Tenun/Songket Anda.</p>
-                        </div>
-                         <div className="border p-4 rounded-lg">
-                            <h4 className="font-semibold mb-2">Staf Toko (Artisan)</h4>
-                            <p className="text-sm text-muted-foreground">Anda bisa menambahkan karyawan (Artisan) untuk membantu mengelola pesanan tanpa memberikan akses penuh ke keuangan.</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold font-heading">
+                <Store className="w-5 h-5 text-primary" />
+                Pengaturan Profil & Status Operasional Toko
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-3 bg-card p-5 rounded-xl border border-border/50">
+                  <h4 className="font-bold text-lg text-foreground flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    Buka / Tutup Toko (Status Operasional)
+                  </h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Admin Toko maupun Staff dapat mengatur ketersediaan toko secara mandiri di menu <strong>Pengaturan Toko</strong>. Jika switch <strong>"Toko Buka/Aktif"</strong> dimatikan, toko akan berstatus tutup dan seluruh produk toko Anda disembunyikan sementara dari pencarian pembeli tanpa menghapus data produk.
+                  </p>
+                </div>
+
+                <div className="space-y-3 bg-card p-5 rounded-xl border border-border/50">
+                  <h4 className="font-bold text-lg text-foreground">Profil & Banner Visual Toko</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Perbarui Logo Toko, Foto Banner Header, serta Deskripsi Sejarah Pengrajin secara berkala untuk membangun rasa percaya calon pembeli terhadap kualitas hasil tenun Anda.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-         <TabsContent value="faq" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <HelpCircle className="w-5 h-5 text-primary" />
-                        Bantuan & Masalah
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm">
-                    <div className="space-y-2 border-b pb-4">
-                        <h4 className="font-semibold">Q: Pembeli komplain barang rusak, apa yang harus saya lakukan?</h4>
-                        <p className="text-muted-foreground">A: Minta pembeli mengirimkan video unboxing. Jika terbukti kesalahan toko, setujui pengembalian dana atau kirim barang pengganti. Jaga reputasi toko Anda.</p>
-                    </div>
-                    <div className="space-y-2 border-b pb-4">
-                        <h4 className="font-semibold">Q: Bagaimana cara mengubah status "Toko Tutup"?</h4>
-                        <p className="text-muted-foreground">A: Masuk ke Pengaturan Toko, matikan switch "Toko Buka/Aktif". Produk Anda akan disembunyikan sementara.</p>
-                    </div>
-                     <div className="space-y-2">
-                        <h4 className="font-semibold">Butuh Bantuan Mendesak?</h4>
-                        <p className="text-muted-foreground">Hubungi Tim Support Innovillage via WhatsApp Admin: <strong>+62 812-3456-7890</strong></p>
-                    </div>
-                </CardContent>
-            </Card>
+        {/* TAB STAF TOKO */}
+        <TabsContent value="staff" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold font-heading">
+                <Users className="w-5 h-5 text-primary" />
+                Manajemen Karyawan / Staff (Artisan)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <p className="text-sm text-muted-foreground">
+                Platform menyediakan pemisahan hak akses antara <strong>Admin Toko (Pemilik)</strong> dan <strong>Staff (Artisan/Karyawan)</strong> untuk menjaga kerahasiaan keuangan toko:
+              </p>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-5 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
+                  <Badge className="bg-primary text-primary-foreground font-bold">Admin Toko (Pemilik)</Badge>
+                  <ul className="list-disc pl-5 text-sm space-y-1.5 text-foreground/80 pt-2">
+                    <li>Akses penuh ke seluruh menu toko.</li>
+                    <li>Dapat menambah & mengelola akun Staff (Artisan).</li>
+                    <li>Akses penuh ke Laporan Keuangan & Penarikan Saldo.</li>
+                    <li>Mengubah profil dan rekening bank toko.</li>
+                  </ul>
+                </div>
+
+                <div className="p-5 rounded-xl border border-border bg-card space-y-2">
+                  <Badge variant="secondary" className="font-bold">Staff Toko (Artisan)</Badge>
+                  <ul className="list-disc pl-5 text-sm space-y-1.5 text-muted-foreground pt-2">
+                    <li>Dapat menambah, mengedit, dan mengelola Produk.</li>
+                    <li>Dapat memproses status Pesanan pembeli.</li>
+                    <li>Dapat mengatur switch Buka/Tutup Toko.</li>
+                    <li><strong>TIDAK BISA</strong> mengakses Laporan Keuangan & Pencairan Saldo.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-border/60 bg-muted/30 text-sm space-y-1">
+                <strong className="font-bold text-foreground">Cara Menambahkan Staff:</strong>
+                <p className="text-muted-foreground">
+                  Masuk ke menu <strong>Staff</strong> (khusus Admin Toko) &rarr; Klik <strong>Tambah Staff Baru</strong> &rarr; Isi Nama, Email, dan Password akun staff. Akun staff akan otomatis langsung muncul di daftar manajemen staff toko Anda.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB BANTUAN & MASALAH */}
+        <TabsContent value="faq" className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 bg-muted/20">
+              <CardTitle className="flex items-center gap-2 text-xl font-bold font-heading">
+                <HelpCircle className="w-5 h-5 text-primary" />
+                Pusat Bantuan & Pertanyaan Umum (FAQ)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5 text-sm pt-6">
+              <div className="space-y-2 border-b border-border/50 pb-4">
+                <h4 className="font-bold text-foreground text-base">Q: Pembeli mengajukan komplain barang rusak / cacat?</h4>
+                <p className="text-muted-foreground leading-relaxed">
+                  A: Minta pembeli melampirkan video unboxing tanpa terputus. Jika terbukti terjadi cacat saat pembuatan atau pengemasan, komunikasikan opsi penggantian barang atau koordinasikan dengan Super Admin untuk proses resolusi retur.
+                </p>
+              </div>
+
+              <div className="space-y-2 border-b border-border/50 pb-4">
+                <h4 className="font-bold text-foreground text-base">Q: Mengapa toko saya tidak muncul di pencarian publik?</h4>
+                <p className="text-muted-foreground leading-relaxed">
+                  A: Cek kembali status toko di menu <strong>Pengaturan Toko</strong>. Apabila status switch dalam keadaan 'Tutup / Nonaktif', toko Anda otomatis disembunyikan sementara dari etalase direktori toko.
+                </p>
+              </div>
+
+              <div className="space-y-2 bg-primary/5 p-4 rounded-xl border border-primary/20">
+                <h4 className="font-bold text-primary text-base">Bantuan Teknis Mendesak</h4>
+                <p className="text-muted-foreground">
+                  Apabila Anda mengalami kendala teknis pada sistem transaksi, hubungi Tim Operational Innovillage via WhatsApp Support: <a href="https://wa.me/6289530124209" target="_blank" rel="noopener noreferrer" className="text-foreground font-bold hover:underline">+62 895-3012-4209</a>.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
