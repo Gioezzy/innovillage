@@ -59,6 +59,7 @@ export default function Navbar() {
   const [stores, setStores] = useState<StoreItem[]>([]);
   const router = useRouter();
   const supabase = createClient();
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNavbarData = async () => {
@@ -83,6 +84,38 @@ export default function Navbar() {
     };
     fetchNavbarData();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setUserRole(null);
+      return;
+    }
+    const fetchRole = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (data?.role) {
+        setUserRole(data.role);
+      }
+    };
+    fetchRole();
+  }, [user, supabase]);
+
+  const isNonCustomer = userRole === 'admin' || userRole === 'artisan' || userRole === 'super_admin';
+
+  const rolePageHref =
+    userRole === 'super_admin'
+      ? '/super-admin'
+      : '/admin';
+
+  const rolePageLabel =
+    userRole === 'super_admin'
+      ? 'Kembali ke Super Admin'
+      : userRole === 'admin'
+      ? 'Kembali ke Dashboard Toko'
+      : 'Kembali ke Dashboard Staff';
 
   const handleLogout = async () => {
     const res = await logoutAction();
@@ -285,27 +318,39 @@ export default function Navbar() {
                     </button>
                     {isUserMenuOpen && (
                       <div className="absolute top-full right-0 mt-3 w-48 bg-card border rounded-lg shadow-lg py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <Link
-                          href="/dashboard"
-                          className="flex items-center gap-3 px-4 py-2.5 text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors text-sm"
-                        >
-                          <LayoutDashboard className="w-4 h-4" />
-                          <span>Dashboard</span>
-                        </Link>
-                        <Link
-                          href="/profile"
-                          className="flex items-center gap-3 px-4 py-2.5 text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors text-sm"
-                        >
-                          <User className="w-4 h-4" />
-                          <span>Profile</span>
-                        </Link>
-                        <Link
-                          href="/open-shop"
-                          className="flex items-center gap-3 px-4 py-2.5 text-primary hover:bg-primary/5 transition-colors text-sm font-medium"
-                        >
-                          <Store className="w-4 h-4" />
-                          <span>Buka Toko</span>
-                        </Link>
+                        {isNonCustomer ? (
+                          <Link
+                            href={rolePageHref}
+                            className="flex items-center gap-3 px-4 py-2.5 text-primary font-semibold hover:bg-primary/5 transition-colors text-sm"
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>{rolePageLabel}</span>
+                          </Link>
+                        ) : (
+                          <>
+                            <Link
+                              href="/dashboard"
+                              className="flex items-center gap-3 px-4 py-2.5 text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors text-sm"
+                            >
+                              <LayoutDashboard className="w-4 h-4" />
+                              <span>Dashboard</span>
+                            </Link>
+                            <Link
+                              href="/profile"
+                              className="flex items-center gap-3 px-4 py-2.5 text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors text-sm"
+                            >
+                              <User className="w-4 h-4" />
+                              <span>Profile</span>
+                            </Link>
+                            <Link
+                              href="/open-shop"
+                              className="flex items-center gap-3 px-4 py-2.5 text-primary hover:bg-primary/5 transition-colors text-sm font-medium"
+                            >
+                              <Store className="w-4 h-4" />
+                              <span>Buka Toko</span>
+                            </Link>
+                          </>
+                        )}
                         <div className="border-t my-1"></div>
                         <button
                           onClick={handleLogout}
@@ -442,20 +487,39 @@ export default function Navbar() {
                   <>
                     {user ? (
                       <>
-                        <Link
-                          href="/dashboard"
-                          className="flex items-center space-x-3 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg font-medium transition-colors"
-                        >
-                          <LayoutDashboard className="w-5 h-5" />
-                          <span>Akun Saya</span>
-                        </Link>
-                        <Link
-                          href="/open-shop"
-                          className="flex items-center space-x-3 px-4 py-3 text-primary hover:bg-primary/5 rounded-lg font-medium transition-colors"
-                        >
-                          <Store className="w-5 h-5" />
-                          <span>Buka Toko</span>
-                        </Link>
+                        {isNonCustomer ? (
+                          <Link
+                            href={rolePageHref}
+                            className="flex items-center space-x-3 px-4 py-3 text-primary font-semibold hover:bg-primary/5 rounded-lg transition-colors"
+                          >
+                            <LayoutDashboard className="w-5 h-5" />
+                            <span>{rolePageLabel}</span>
+                          </Link>
+                        ) : (
+                          <>
+                            <Link
+                              href="/dashboard"
+                              className="flex items-center space-x-3 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg font-medium transition-colors"
+                            >
+                              <LayoutDashboard className="w-5 h-5" />
+                              <span>Dashboard</span>
+                            </Link>
+                            <Link
+                              href="/profile"
+                              className="flex items-center space-x-3 px-4 py-3 text-foreground/80 hover:bg-secondary rounded-lg font-medium transition-colors"
+                            >
+                              <User className="w-5 h-5" />
+                              <span>Profil</span>
+                            </Link>
+                            <Link
+                              href="/open-shop"
+                              className="flex items-center space-x-3 px-4 py-3 text-primary hover:bg-primary/5 rounded-lg font-medium transition-colors"
+                            >
+                              <Store className="w-5 h-5" />
+                              <span>Buka Toko</span>
+                            </Link>
+                          </>
+                        )}
                       </>
                     ) : (
                       <Link
